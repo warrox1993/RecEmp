@@ -1,0 +1,94 @@
+<div class="reminder-list-container">
+  <div class="page-header">
+    <h1><mat-icon>checklist_rtl</mat-icon> Mes Rappels</h1>
+    <div class="header-actions-toolbar">
+      <button mat-stroked-button (click)="toggleShowCompleted()" [disabled]="isRefreshing()">
+        <mat-icon>{{ showCompleted() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        {{ showCompleted() ? 'Cacher les complétés' : 'Afficher les complétés' }}
+      </button>
+      <button mat-flat-button color="primary" (click)="refreshRemindersAndNotifications()" [disabled]="isRefreshing()" matTooltip="Rafraîchir la liste et vérifier les rappels dus">
+        <mat-icon *ngIf="!isRefreshing()">refresh</mat-icon>
+        <mat-spinner *ngIf="isRefreshing()" diameter="20" color="accent" class="inline-spinner"></mat-spinner>
+        <span *ngIf="!isRefreshing()">Rafraîchir</span>
+        <span *ngIf="isRefreshing()">Chargement...</span>
+      </button>
+    </div>
+  </div>
+
+  <mat-card *ngIf="pendingReminders().length > 0 || isRefreshing()" class="reminder-section-card">
+    <mat-card-title>Rappels en Attente ({{ pendingReminders().length }})</mat-card-title>
+    <mat-list *ngIf="!isRefreshing()">
+      <ng-container *ngFor="let reminder of pendingReminders(); let last = last">
+        <mat-list-item class="reminder-item" [class.overdue]="isReminderOverdue(reminder)">
+          <mat-icon matListItemIcon [color]="reminder.type === 'candidature' ? 'primary' : 'accent'">{{ getReminderIcon(reminder.type) }}</mat-icon>
+          <div matListItemTitle class="reminder-title" (click)="navigateToCandidature(reminder.relatedCandidatureId)" [class.clickable-title]="reminder.type === 'candidature' && reminder.relatedCandidatureId">
+            {{ reminder.title }}
+            <span class="reminder-type-chip {{reminder.type}}">{{ reminder.type === 'candidature' ? 'Candidature' : 'Manuel' }}</span>
+          </div>
+          <div matListItemLine class="reminder-description">{{ reminder.description || 'Aucune description détaillée.' }}</div>
+          <div matListItemLine class="reminder-date">
+            <mat-icon class="date-icon">event</mat-icon>
+            Échéance: {{ reminder.reminderDate | date:'dd/MM/yyyy' }}
+            <span *ngIf="isReminderOverdue(reminder)" class="overdue-text">(En retard)</span>
+          </div>
+          <div matListItemMeta class="reminder-actions">
+            <button mat-icon-button (click)="toggleReminderCompletion(reminder, $event)" [matTooltip]="reminder.isCompleted ? 'Marquer comme non complété' : 'Marquer comme complété'">
+              <mat-icon>{{ reminder.isCompleted ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" *ngIf="reminder.type === 'manuel'" (click)="deleteManualReminder(reminder, $event)" matTooltip="Supprimer ce rappel manuel">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        </mat-list-item>
+        <mat-divider *ngIf="!last"></mat-divider>
+      </ng-container>
+    </mat-list>
+    <div *ngIf="isRefreshing()" class="refresh-loading-placeholder">
+        <mat-spinner diameter="30"></mat-spinner>
+        <p>Mise à jour des rappels...</p>
+    </div>
+  </mat-card>
+
+  <div *ngIf="pendingReminders().length === 0 && !showCompleted() && !isRefreshing()" class="no-reminders-message">
+    <mat-icon>notifications_active</mat-icon>
+    <p>Aucun rappel en attente pour le moment. Bravo !</p>
+  </div>
+
+  <mat-card *ngIf="showCompleted() && (completedReminders().length > 0 || isRefreshing())" class="reminder-section-card completed-section">
+    <mat-card-title>Rappels Complétés ({{ completedReminders().length }})</mat-card-title>
+    <mat-list *ngIf="!isRefreshing()">
+      <ng-container *ngFor="let reminder of completedReminders(); let last = last">
+        <mat-list-item class="reminder-item completed-item">
+          <mat-icon matListItemIcon color="disabled">{{ getReminderIcon(reminder.type) }}</mat-icon>
+          <div matListItemTitle class="reminder-title completed-title" (click)="navigateToCandidature(reminder.relatedCandidatureId)" [class.clickable-title]="reminder.type === 'candidature' && reminder.relatedCandidatureId">
+            {{ reminder.title }}
+            <span class="reminder-type-chip {{reminder.type}}">{{ reminder.type === 'candidature' ? 'Candidature' : 'Manuel' }}</span>
+          </div>
+          <div matListItemLine class="reminder-description">{{ reminder.description || '-' }}</div>
+          <div matListItemLine class="reminder-date">
+            <mat-icon class="date-icon">event_available</mat-icon>
+            Complété (Échéance: {{ reminder.reminderDate | date:'dd/MM/yyyy' }})
+          </div>
+           <div matListItemMeta class="reminder-actions">
+            <button mat-icon-button (click)="toggleReminderCompletion(reminder, $event)" matTooltip="Marquer comme non complété">
+              <mat-icon>check_box</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" *ngIf="reminder.type === 'manuel'" (click)="deleteManualReminder(reminder, $event)" matTooltip="Supprimer ce rappel manuel">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        </mat-list-item>
+        <mat-divider *ngIf="!last"></mat-divider>
+      </ng-container>
+    </mat-list>
+     <div *ngIf="isRefreshing()" class="refresh-loading-placeholder">
+        <mat-spinner diameter="30"></mat-spinner>
+         <p>Mise à jour...</p>
+    </div>
+  </mat-card>
+
+   <div *ngIf="showCompleted() && completedReminders().length === 0 && !isRefreshing()" class="no-reminders-message">
+      <mat-icon>done_all</mat-icon>
+      <p>Aucun rappel complété à afficher.</p>
+    </div>
+</div>

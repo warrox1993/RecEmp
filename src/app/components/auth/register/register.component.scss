@@ -1,0 +1,102 @@
+// src/app/components/auth/register/register.component.scss
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 128px); // Ajuster si votre header/footer a une hauteur différente
+  padding: 20px;
+  background-color: #f4f6f8;
+}
+
+.register-card {
+  max-width: 500px; // Un peu plus large pour les champs de nom/prénom
+  width: 100%;
+  padding: 20px;
+}
+
+.register-title {
+  text-align: center;
+  font-size: 1.8em;
+  margin-bottom: 24px;
+  color: var(--mdc-theme-primary, #3f51b5);
+}
+
+.name-fields {
+  display: flex;
+  gap: 16px; // Espace entre les champs prénom et nom
+  margin-bottom: 4px; // Ajustement pour que l'erreur du groupe ne soit pas trop espacée
+}
+
+.half-width {
+  flex: 1; // Pour que les champs prennent la moitié de l'espace disponible
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.register-button-container {
+  margin-top: 8px;
+  position: relative;
+}
+
+.register-button {
+  padding: 12px 0;
+  font-size: 1em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+
+  mat-spinner {
+    // Style du spinner
+  }
+}
+
+.register-actions {
+  display: flex;
+  justify-content: center; // Centrer le lien
+  margin-top: 20px;
+
+  .link {
+    color: var(--mdc-theme-primary, #3f51b5);
+    text-decoration: none;
+    font-size: 0.9em;
+
+    &:hover {
+      text-decoration: underline;
+    }
+    &.disabled-link {
+      color: #aaa;
+      pointer-events: none;
+      text-decoration: none;
+    }
+  }
+}
+
+.register-error-message {
+  color: var(--mdc-theme-error, #f44336);
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+// Ajustement pour les petits écrans
+@media (max-width: 600px) {
+  .name-fields {
+    flex-direction: column; // Passer les champs nom/prénom en colonne
+    gap: 0; // Retirer l'espace quand en colonne, le margin-bottom du form-field fera l'affaire
+    margin-bottom: 0;
+  }
+  .half-width {
+    margin-bottom: 16px; // Ajouter un margin-bottom quand ils sont en colonne
+  }
+  .register-card {
+    padding: 16px;
+  }
+}

@@ -1,0 +1,19 @@
+// src/app/components/manual-reminder-dialog/manual-reminder-dialog.component.scss
+.reminder-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-dialog-content {
+  padding-top: 10px; // Un peu d'espace après le titre
+  padding-bottom: 10px;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px !important; // Assurer un padding suffisant
+}
