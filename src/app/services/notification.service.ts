@@ -1,9 +1,7 @@
-// src/app/services/notification.service.ts - VERSION CORRIGÉE
-import { Injectable, signal, computed, WritableSignal, Signal, effect } from '@angular/core';
+// src/app/services/notification.service.ts - VERSION SIMPLIFIÉE
+import { Injectable, signal, computed, WritableSignal, Signal } from '@angular/core';
 import { AppNotification } from '../models/notification.model';
 import { Reminder } from '../models/reminder.model';
-import { CandidatureService } from './candidature.service';
-import { Candidature } from '../models/candidature.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,36 +17,15 @@ export class NotificationService {
   public readonly reminders: Signal<Reminder[]> = this._reminders.asReadonly();
 
   private readonly REMINDERS_STORAGE_KEY = 'protrack_cv_reminders';
-  private readonly NOTIFICATIONS_STORAGE_KEY = 'protrack_cv_notifications';
-  private initialized = false;
 
-  constructor(private candidatureService: CandidatureService) {
-    console.log('🔧 NotificationService constructor - début');
-
-    // Initialisation simple sans effect problématique
-    this.initializeService();
-
-    console.log('🔧 NotificationService constructor - fin');
+  constructor() {
+    console.log('🔧 NotificationService constructor - version simplifiée');
+    this.loadRemindersFromStorage();
+    this.initializeWithDefaultNotifications();
   }
 
-  private initializeService(): void {
-    if (this.initialized) return;
-    this.initialized = true;
-
-    console.log('🔧 NotificationService: Initialisation...');
-
+  private loadRemindersFromStorage(): void {
     try {
-      this.loadFromStorage();
-      this.generateSampleNotifications(); // Ajouter quelques notifications de test
-      console.log('✅ NotificationService initialized successfully');
-    } catch (error) {
-      console.error('❌ Erreur lors de l\'initialisation NotificationService:', error);
-    }
-  }
-
-  private loadFromStorage(): void {
-    try {
-      // Charger les reminders
       const storedReminders = localStorage.getItem(this.REMINDERS_STORAGE_KEY);
       if (storedReminders) {
         const parsedReminders = JSON.parse(storedReminders) as Reminder[];
@@ -57,81 +34,59 @@ export class NotificationService {
           reminderDate: new Date(r.reminderDate),
           createdAt: new Date(r.createdAt)
         })));
-        console.log('✅ Rappels chargés:', parsedReminders.length);
-      }
-
-      // Charger les notifications
-      const storedNotifications = localStorage.getItem(this.NOTIFICATIONS_STORAGE_KEY);
-      if (storedNotifications) {
-        const parsedNotifications = JSON.parse(storedNotifications) as AppNotification[];
-        this._notifications.set(parsedNotifications.map(n => ({
-          ...n,
-          date: new Date(n.date)
-        })));
-        console.log('✅ Notifications chargées:', parsedNotifications.length);
+        console.log('✅ Rappels chargés depuis localStorage:', parsedReminders.length);
+      } else {
+        console.log('🔧 Aucun rappel en localStorage, initialisation vide');
+        this._reminders.set([]);
       }
     } catch (e) {
-      console.error('❌ Erreur lors du chargement depuis le stockage:', e);
+      console.error('❌ Erreur lors du chargement des rappels:', e);
       this._reminders.set([]);
-      this._notifications.set([]);
     }
   }
 
-  private saveToStorage(): void {
+  private saveRemindersToStorage(): void {
     try {
       localStorage.setItem(this.REMINDERS_STORAGE_KEY, JSON.stringify(this._reminders()));
-      localStorage.setItem(this.NOTIFICATIONS_STORAGE_KEY, JSON.stringify(this._notifications()));
     } catch (error) {
-      console.error('❌ Erreur lors de la sauvegarde:', error);
+      console.error('❌ Erreur lors de la sauvegarde des rappels:', error);
     }
   }
 
-  private generateSampleNotifications(): void {
-    // Génerer quelques notifications de test si aucune n'existe
-    if (this._notifications().length === 0) {
-      const sampleNotifications: AppNotification[] = [
-        {
-          id: 'notif-1',
-          type: 'info',
-          title: 'Bienvenue dans ProTrack CV !',
-          message: 'Votre application de suivi de candidatures est prête à l\'emploi.',
-          date: new Date(),
-          isRead: false
-        },
-        {
-          id: 'notif-2',
-          type: 'rappel',
-          title: 'Rappel de relance',
-          message: 'N\'oubliez pas de relancer vos candidatures en attente.',
-          date: new Date(Date.now() - 1000 * 60 * 30), // Il y a 30 minutes
-          isRead: false
-        }
-      ];
-      this._notifications.set(sampleNotifications);
-      this.saveToStorage();
-    }
+  private initializeWithDefaultNotifications(): void {
+    // Ajouter quelques notifications par défaut pour tester
+    const defaultNotifications: AppNotification[] = [
+      {
+        id: 'welcome',
+        type: 'info',
+        title: 'Bienvenue sur ProTrack CV !',
+        message: 'Votre outil de suivi de candidatures est prêt.',
+        date: new Date(),
+        isRead: false
+      }
+    ];
+
+    this._notifications.set(defaultNotifications);
   }
 
-  // Méthodes publiques essentielles
+  // Méthodes essentielles
   markAsRead(notificationId: string): void {
     this._notifications.update(notifications =>
       notifications.map(n =>
         n.id === notificationId ? { ...n, isRead: true } : n
       )
     );
-    this.saveToStorage();
   }
 
   markAllAsRead(): void {
     this._notifications.update(notifications =>
       notifications.map(n => ({ ...n, isRead: true }))
     );
-    this.saveToStorage();
   }
 
-  addManualReminder(data: { title: string; description: string; reminderDate: Date }): Reminder {
+  addManualReminder(data: { title: string; description?: string; reminderDate: Date }): Reminder {
     const newReminder: Reminder = {
-      id: `reminder-${Date.now()}`,
+      id: Date.now().toString(),
       title: data.title,
       description: data.description,
       reminderDate: data.reminderDate,
@@ -142,15 +97,9 @@ export class NotificationService {
     };
 
     this._reminders.update(reminders => [...reminders, newReminder]);
-    this.saveToStorage();
+    this.saveRemindersToStorage();
 
-    // Ajouter une notification
-    this.addSystemNotification({
-      type: 'rappel',
-      title: 'Nouveau rappel créé',
-      message: `Rappel "${data.title}" programmé pour le ${data.reminderDate.toLocaleDateString('fr-FR')}`
-    });
-
+    console.log('✅ Rappel manuel ajouté:', newReminder.title);
     return newReminder;
   }
 
@@ -160,14 +109,16 @@ export class NotificationService {
         r.id === reminderId ? { ...r, isCompleted: completed } : r
       )
     );
-    this.saveToStorage();
+    this.saveRemindersToStorage();
+    console.log('✅ Rappel marqué comme complété:', reminderId);
   }
 
   deleteReminder(reminderId: string): void {
     this._reminders.update(reminders =>
       reminders.filter(r => r.id !== reminderId)
     );
-    this.saveToStorage();
+    this.saveRemindersToStorage();
+    console.log('✅ Rappel supprimé:', reminderId);
   }
 
   addSystemNotification(notificationData: {
@@ -178,7 +129,7 @@ export class NotificationService {
     candidatureId?: number;
   }): AppNotification {
     const newNotification: AppNotification = {
-      id: `notif-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      id: Date.now().toString(),
       type: notificationData.type,
       title: notificationData.title,
       message: notificationData.message,
@@ -189,7 +140,7 @@ export class NotificationService {
     };
 
     this._notifications.update(notifications => [newNotification, ...notifications]);
-    this.saveToStorage();
+    console.log('✅ Notification système ajoutée:', newNotification.title);
     return newNotification;
   }
 
@@ -197,12 +148,11 @@ export class NotificationService {
     this._notifications.update(notifications =>
       notifications.filter(n => n.id !== notificationId)
     );
-    this.saveToStorage();
   }
 
   refreshNotifications(): void {
-    console.log('🔧 Actualisation des notifications...');
-    // Pour l'instant, on ne fait que recharger depuis le stockage
-    this.loadFromStorage();
+    console.log('🔧 Rafraîchissement des notifications...');
+    // Pour l'instant, on ne fait qu'un log
+    // Cette méthode pourrait être étendue pour synchroniser avec un serveur
   }
 }
