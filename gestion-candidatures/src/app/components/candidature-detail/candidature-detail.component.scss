@@ -1,0 +1,255 @@
+// src/app/components/candidature-detail/candidature-detail.component.scss
+:host {
+  display: block; // Assure que le composant prend de la place
+}
+
+.detail-container {
+  padding: 20px;
+  max-width: 960px; // Un peu plus large pour le confort
+  margin: 20px auto; // Marge en haut et en bas aussi
+  background-color: #f9f9f9; // Fond léger pour toute la page de détail
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.back-button {
+  margin-bottom: 24px;
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  text-align: center;
+  color: #555;
+  min-height: 300px; // Pour éviter que la page saute
+
+  p {
+    margin-top: 20px;
+    font-size: 1.2em;
+  }
+}
+
+.error-message-card {
+  text-align: center;
+  margin-top: 30px;
+
+  .error-content {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .error-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--mat-warn-color, #f44336); // Utilise la couleur warn de Material
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-size: 1.8em;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 24px;
+  }
+}
+
+
+.candidature-content {
+  .header-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+  }
+
+  .candidature-card, .historique-card {
+    margin-bottom: 24px;
+    border-radius: 8px; // Coins arrondis pour les cartes
+  }
+
+  .main-title {
+    font-size: 1.6em; // Titre plus grand
+    font-weight: 500;
+  }
+
+  .status-chip { // Style pour le statut comme une puce
+    padding: 3px 10px;
+    border-radius: 16px;
+    font-size: 0.85em;
+    font-weight: 500;
+    margin-left: 5px;
+    color: #fff; // Couleur de texte par défaut pour les puces
+
+    &.refus { background-color: #c62828; } // Rouge foncé
+    &.en-attente { background-color: #f57f17; } // Orange foncé
+    &.en-discussion { background-color: #0d47a1; } // Bleu foncé
+    &.accepte { background-color: #2e7d32; } // Vert foncé
+  }
+
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px 20px; // Espace vertical et horizontal
+    padding: 16px 0;
+
+    div {
+      padding-bottom: 6px;
+      font-size: 0.95em;
+      strong {
+        color: var(--mdc-theme-primary, #3f51b5);
+        margin-right: 5px;
+        display: block; // Label sur sa propre ligne pour plus de clarté
+        margin-bottom: 2px;
+        font-size: 0.85em;
+        text-transform: uppercase;
+        color: #777;
+      }
+      pre.comments-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: inherit;
+        margin: 0;
+        padding: 8px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        font-size: 0.95em;
+        line-height: 1.5;
+      }
+    }
+    .full-width-detail {
+      grid-column: 1 / -1;
+    }
+    .comments-section strong { // Pour que le label "Commentaires" soit aussi en majuscule
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.85em;
+        text-transform: uppercase;
+        color: #777;
+    }
+  }
+
+  .ranking-display mat-icon {
+    color: #ccc; // Couleur pour les étoiles vides
+    font-size: 20px;
+    &.active {
+      color: #ffc107; // Jaune pour les étoiles pleines
+    }
+  }
+}
+
+.section-divider {
+  margin: 32px 0;
+}
+
+.historique-card {
+  mat-card-title {
+    margin-bottom: 16px; // Espace sous le titre de l'historique
+  }
+  .empty-historique {
+    text-align: center;
+    padding: 30px 20px;
+    color: #777;
+    font-style: italic;
+    background-color: #fafafa;
+    border-radius: 4px;
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 10px;
+      color: #bbb;
+    }
+    p { margin: 5px 0; }
+  }
+
+  .historique-list {
+    padding-top: 0;
+  }
+
+  .historique-item {
+    padding: 12px 0; // Un peu plus d'espace vertical
+    .historique-item-icon {
+      color: var(--mdc-theme-primary, #3f51b5);
+      margin-right: 16px; // Plus d'espace pour l'icône
+    }
+    .historique-item-title {
+      font-weight: 500;
+      font-size: 1em;
+      margin-bottom: 2px;
+    }
+    .historique-item-date {
+      font-size: 0.85em;
+      color: #666;
+      font-weight: normal;
+    }
+    .historique-item-description {
+      white-space: normal;
+      font-size: 0.9em;
+      color: #444;
+      line-height: 1.5;
+    }
+  }
+  .historique-item-divider {
+    margin: 8px 0; // Espace autour du divider
+  }
+}
+
+.historique-form {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+
+  h4 {
+    margin-bottom: 16px;
+    font-size: 1.3em;
+    color: #333;
+    font-weight: 500;
+  }
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  button[type="submit"] {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-container {
+    padding: 16px;
+    margin: 10px;
+  }
+  .header-actions {
+    justify-content: center; // Centrer le bouton FAB sur mobile
+    margin-bottom: 20px;
+  }
+  .candidature-content .main-title {
+    font-size: 1.4em;
+  }
+}
+
+@media (max-width: 600px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+   .candidature-content .main-title {
+    font-size: 1.3em;
+    line-height: 1.3;
+  }
+  .back-button {
+    width: 100%; // Bouton retour pleine largeur sur mobile
+    margin-bottom: 16px;
+  }
+}
