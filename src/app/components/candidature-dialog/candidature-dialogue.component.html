@@ -1,0 +1,123 @@
+<h2 mat-dialog-title>{{ data.candidature ? 'Modifier la candidature' : 'Ajouter une candidature' }}</h2>
+<div mat-dialog-content>
+  <form [formGroup]="candidatureForm" class="candidature-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Date de candidature</mat-label>
+      <input matInput [matDatepicker]="pickerDateCandidature" formControlName="date">
+      <mat-datepicker-toggle matIconSuffix [for]="pickerDateCandidature"></mat-datepicker-toggle>
+      <mat-datepicker #pickerDateCandidature></mat-datepicker>
+      <mat-error *ngIf="candidatureForm.get('date')?.hasError('required')">La date est requise.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="type">
+        <mat-option value="Job">Job</mat-option>
+        <mat-option value="Stage">Stage</mat-option>
+      </mat-select>
+      <mat-error *ngIf="candidatureForm.get('type')?.hasError('required')">Le type est requis.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Classement</mat-label>
+      <mat-select formControlName="ranking">
+        <mat-option [value]="1">1 (Haute priorité)</mat-option>
+        <mat-option [value]="2">2 (Moyenne priorité)</mat-option>
+        <mat-option [value]="3">3 (Basse priorité)</mat-option>
+      </mat-select>
+      <mat-error *ngIf="candidatureForm.get('ranking')?.hasError('required')">Le classement est requis.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Entreprise</mat-label>
+      <input matInput formControlName="entreprise" placeholder="Nom de l'entreprise">
+      <mat-error *ngIf="candidatureForm.get('entreprise')?.hasError('required')">Le nom de l'entreprise est requis.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Poste</mat-label>
+      <input matInput formControlName="poste" placeholder="Intitulé du poste">
+      <mat-error *ngIf="candidatureForm.get('poste')?.hasError('required')">L'intitulé du poste est requis.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Ville</mat-label>
+      <input matInput formControlName="ville" placeholder="Ville du poste">
+      <mat-error *ngIf="candidatureForm.get('ville')?.hasError('required')">La ville est requise.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Région</mat-label>
+      <input matInput formControlName="region" placeholder="Ex: Wallonie, Flandre, Île-de-France">
+       <mat-error *ngIf="candidatureForm.get('region')?.hasError('required')">La région est requise.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Contact</mat-label>
+      <input matInput formControlName="contact" placeholder="Email, nom, téléphone...">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Réponse</mat-label>
+      <mat-select formControlName="reponse">
+        <mat-option value="En attente">En attente</mat-option>
+        <mat-option value="En discussion">En discussion</mat-option>
+        <mat-option value="Refus">Refus</mat-option>
+        <mat-option value="Accepté">Accepté</mat-option>
+      </mat-select>
+      <mat-error *ngIf="candidatureForm.get('reponse')?.hasError('required')">La réponse est requise.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Source</mat-label>
+      <mat-select formControlName="source">
+        <mat-option value="LinkedIn">LinkedIn</mat-option>
+        <mat-option value="Internet">Site web de l'entreprise</mat-option>
+        <mat-option value="Indeed">Indeed</mat-option>
+        <mat-option value="Welcome!ToTheJungle">Welcome to the Jungle</mat-option>
+        <mat-option value="Relation">Relation / Réseau</mat-option>
+        <mat-option value="Autre">Autre</mat-option>
+      </mat-select>
+      <mat-error *ngIf="candidatureForm.get('source')?.hasError('required')">La source est requise.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Délai de rappel</mat-label>
+      <mat-select formControlName="delaiRappel">
+        <mat-option value="Aucun">Aucun rappel</mat-option>
+        <mat-option value="1 semaine">Dans 1 semaine</mat-option>
+        <mat-option value="2 semaines">Dans 2 semaines</mat-option>
+        <mat-option value="1 mois">Dans 1 mois</mat-option>
+        <mat-option value="Personnalisé">Date personnalisée</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline"
+                    [class.disabled-field]="candidatureForm.get('delaiRappel')?.value !== 'Personnalisé'">
+      <mat-label>Date de rappel</mat-label>
+      <input matInput [matDatepicker]="pickerDateRappel" formControlName="dateRappel"
+             [min]="minDateForRappel"
+             [disabled]="candidatureForm.get('delaiRappel')?.value !== 'Personnalisé'">
+      <mat-datepicker-toggle matIconSuffix [for]="pickerDateRappel"
+                             [disabled]="candidatureForm.get('delaiRappel')?.value !== 'Personnalisé'"></mat-datepicker-toggle>
+      <mat-datepicker #pickerDateRappel [startAt]="minDateForRappel"></mat-datepicker>
+       <mat-error *ngIf="candidatureForm.get('dateRappel')?.hasError('required') && candidatureForm.get('delaiRappel')?.value === 'Personnalisé'">
+        Date de rappel requise pour un délai personnalisé.
+      </mat-error>
+       <mat-error *ngIf="candidatureForm.get('dateRappel')?.hasError('matDatepickerMin')">
+        La date de rappel ne peut pas être antérieure à la date de candidature.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Commentaires</mat-label>
+      <textarea matInput formControlName="commentaires" rows="3" placeholder="Notes, suivi, prochaines étapes..."></textarea>
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Annuler</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="candidatureForm.invalid">
+    {{ data.candidature ? 'Mettre à jour' : 'Ajouter' }}
+  </button>
+</div>

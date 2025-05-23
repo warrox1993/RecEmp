@@ -1,8 +1,6 @@
 // src/app/services/candidature.service.ts
-import { Injectable, signal, WritableSignal, Signal, computed } from '@angular/core'; // Importer signal, WritableSignal, Signal
+import { Injectable, signal, WritableSignal, Signal, computed } from '@angular/core';
 import { Candidature } from '../models/candidature.model';
-// Observable et 'of' ne sont plus nécessaires pour getCandidatureById si on le rend synchrone pour la simulation
-// import { Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -19,13 +17,8 @@ export class CandidatureService {
     { id: 13, date: "21/08/2024", type: "Job", ranking: 1, entreprise: "Ankama", poste: "Développeur web PHP", ville: "Roubaix", region: "Hauts-de-France (FR)", contact: "-", reponse: "En discussion", source: "Internet", commentaires: "Postulé via le site web", delaiRappel: "2 semaines", dateRappel: "04/09/2024" },
   ];
 
-  // Utilisation d'un WritableSignal pour la liste des candidatures
   private _candidatures: WritableSignal<Candidature[]> = signal<Candidature[]>([]);
-  // Signal public en lecture seule pour les candidatures
   public readonly candidatures: Signal<Candidature[]> = this._candidatures.asReadonly();
-
-  // On peut aussi exposer un Observable si certains composants préfèrent cette API ou pour interopérabilité
-  // public candidatures$: Observable<Candidature[]> = toObservable(this._candidatures); // Nécessite @angular/core/rxjs-interop
 
   constructor() {
     this.chargerDonnees();
@@ -50,7 +43,6 @@ export class CandidatureService {
             delaiRappel: c.delaiRappel || 'Aucun',
             dateRappel: c.dateRappel || undefined
         }));
-        // Sauvegarder les données initiales si localStorage était vide
         this.sauvegarderDonnees(dataToSet);
       }
       this._candidatures.set(dataToSet);
@@ -75,42 +67,44 @@ export class CandidatureService {
     }
   }
 
-  // Retourne la valeur actuelle du signal (array)
   getAllCandidatures(): Candidature[] {
     return this._candidatures();
   }
 
-  // Retourne une candidature spécifique de manière synchrone pour la simulation
-  // Si c'était un appel API, ce serait un Observable<Candidature | null>
   getCandidatureById(id: number): Candidature | null {
     const candidature = this._candidatures().find(c => c.id === id);
     if (candidature) {
-      console.log(`CandidatureService (Signal): Candidature trouvée pour ID ${id}`, candidature);
       return candidature;
-    } else {
-      console.warn(`CandidatureService (Signal): Aucune candidature trouvée pour ID ${id}`);
-      return null;
     }
+    return null;
   }
 
+  // MODIFIÉ ICI pour la génération d'ID séquentiel
   addCandidature(candidature: Candidature): void {
-    let newId = candidature.id;
-    if (!newId || this._candidatures().some(c => c.id === newId)) {
-        newId = Date.now() + Math.floor(Math.random() * 1000);
+    // 1. Trouver l'ID le plus élevé actuellement dans la liste
+    const currentCandidatures = this._candidatures();
+    let maxId = 0;
+    if (currentCandidatures.length > 0) {
+      maxId = Math.max(...currentCandidatures.map(c => c.id));
     }
+
+    // 2. Le nouvel ID sera maxId + 1 (ou 1 si la liste est vide)
+    const newId = maxId + 1;
+
     const candidatureAvecDefauts: Candidature = {
         ...candidature,
-        id: newId, // Assigner le nouvel ID
+        id: newId, // Assigner le nouvel ID séquentiel
         region: candidature.region || '',
         delaiRappel: candidature.delaiRappel || 'Aucun',
-        dateRappel: candidature.dateRappel
+        dateRappel: candidature.dateRappel // Sera undefined si non fourni
     };
 
-    this._candidatures.update(currentCandidatures => {
-      const nouvellesDonnees = [...currentCandidatures, candidatureAvecDefauts];
-      this.sauvegarderDonnees(nouvellesDonnees); // Sauvegarder après mise à jour du signal
+    this._candidatures.update(current => {
+      const nouvellesDonnees = [...current, candidatureAvecDefauts];
+      this.sauvegarderDonnees(nouvellesDonnees);
       return nouvellesDonnees;
     });
+    console.log('Nouvelle candidature ajoutée avec ID séquentiel:', candidatureAvecDefauts);
   }
 
   updateCandidature(candidatureModifiee: Candidature): void {
@@ -125,10 +119,8 @@ export class CandidatureService {
         };
         this.sauvegarderDonnees(nouvellesDonnees);
         return nouvellesDonnees;
-      } else {
-        console.warn(`Tentative de mise à jour d'une candidature non trouvée avec ID: ${candidatureModifiee.id}`);
-        return currentCandidatures; // Retourner l'état actuel si non trouvé
       }
+      return currentCandidatures;
     });
   }
 
@@ -192,7 +184,7 @@ export class CandidatureService {
   }
 
   exportToCSV(): string {
-    const candidatures = this._candidatures(); // Lire la valeur du signal
+    const candidatures = this._candidatures();
     if (candidatures.length === 0) {
         return "Aucune donnée à exporter.";
     }

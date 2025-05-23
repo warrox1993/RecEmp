@@ -1,251 +1,314 @@
-<!--
-  Objectif global : Créer une page d'accueil narrative et engageante pour ProTrack CV.
-  Thème : La recherche d'emploi comme une "quête" où ProTrack CV est l'allié stratégique.
-  Style : Moderne, épuré, avec des micro-interactions et des visuels impactants, intégrant des idées originales.
--->
-
-<nav class="quest-sidebar" aria-label="Progression de la quête">
+<!-- Sidebar de navigation -->
+<nav class="quest-sidebar">
+  <div class="progress-indicator"></div>
   <ul>
-    <li>
-      <a (click)="scrollToSection('hero-section', $event)" [class.active]="activeSection === 'hero-section'" matTooltip="L'Appel de l'Aventure" matTooltipPosition="right">
-        <mat-icon>flag</mat-icon> <span class="nav-text">L'Appel</span>
-      </a>
-    </li>
-    <li>
-      <a (click)="scrollToSection('oracle-section', $event)" [class.active]="activeSection === 'oracle-section'" matTooltip="Consultez l'Oracle" matTooltipPosition="right">
-        <mat-icon>psychology</mat-icon> <span class="nav-text">L'Oracle</span>
-      </a>
-    </li>
-    <li>
-      <a (click)="scrollToSection('problem-solution-section', $event)" [class.active]="activeSection === 'problem-solution-section'" matTooltip="Les Défis à Surmonter" matTooltipPosition="right">
-        <mat-icon>pest_control</mat-icon> <span class="nav-text">Les Défis</span>
-      </a>
-    </li>
-    <li>
-      <a (click)="scrollToSection('map-section', $event)" [class.active]="activeSection === 'map-section'" matTooltip="Territoires à Explorer" matTooltipPosition="right">
-        <mat-icon>map</mat-icon> <span class="nav-text">La Carte</span>
-      </a>
-    </li>
-    <li>
-      <a (click)="scrollToSection('features-section', $event)" [class.active]="activeSection === 'features-section'" matTooltip="Votre Arsenal Secret" matTooltipPosition="right">
-        <mat-icon>shield_moon</mat-icon> <span class="nav-text">L'Arsenal</span>
-      </a>
-    </li>
-    <li>
-      <a (click)="scrollToSection('final-cta-section', $event)" [class.active]="activeSection === 'final-cta-section'" matTooltip="Prêt pour la Conquête ?" matTooltipPosition="right">
-        <mat-icon>emoji_events</mat-icon> <span class="nav-text">La Conquête</span>
-      </a>
-    </li>
-    <li>
-      <a (click)="scrollToSection('homepage-footer', $event)" [class.active]="activeSection === 'homepage-footer'" matTooltip="Partager la Quête" matTooltipPosition="right">
-        <mat-icon>share</mat-icon> <span class="nav-text">Partager</span>
-      </a>
-    </li>
+    <li><a href="#hero" class="active" (click)="onNavClick($event, 'hero')">
+      <div class="nav-icon home"></div>
+      <span class="nav-text">Accueil</span>
+    </a></li>
+    <li><a href="#impact" (click)="onNavClick($event, 'impact')">
+      <div class="nav-icon trending"></div>
+      <span class="nav-text">Résultats prouvés</span>
+    </a></li>
+    <li><a href="#solution" (click)="onNavClick($event, 'solution')">
+      <div class="nav-icon psychology"></div>
+      <span class="nav-text">Vos défis</span>
+    </a></li>
+    <li><a href="#features" (click)="onNavClick($event, 'features')">
+      <div class="nav-icon dashboard"></div>
+      <span class="nav-text">Solutions</span>
+    </a></li>
+    <li><a href="#demo" (click)="onNavClick($event, 'demo')">
+      <div class="nav-icon visibility"></div>
+      <span class="nav-text">Aperçu</span>
+    </a></li>
+    <li><a href="#cta" (click)="onNavClick($event, 'cta')">
+      <div class="nav-icon rocket"></div>
+      <span class="nav-text">Prêt à commencer</span>
+    </a></li>
   </ul>
 </nav>
 
 <div class="homepage-container">
+  <!-- 1. Section Héro -->
+  <section id="hero" class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Transformez votre recherche d'emploi en <span class="highlight">succès garanti</span>
+      </h1>
 
-  <header class="hero-section text-center section-padding" id="hero-section">
+      <p class="hero-subtitle">
+        Ne laissez plus aucune opportunité vous échapper. ProTrack CV centralise, automatise et optimise chaque étape de votre recherche d'emploi pour maximiser vos chances de décrocher le poste de vos rêves.
+      </p>
+
+      <div class="cta-buttons">
+        <button class="btn btn-primary" (click)="startFree()">
+          Démarrer gratuitement
+        </button>
+        <button class="btn btn-secondary" (click)="login()">
+          Se connecter
+        </button>
+      </div>
+
+      <div class="trust-indicators">
+        <div class="trust-item">
+          100% gratuit
+        </div>
+        <div class="trust-item">
+          Données personnelles protégées
+        </div>
+        <div class="trust-item">
+          Prêt à l'emploi
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Section Impact/Résultats prouvés -->
+  <section id="impact" class="stats-section">
     <div class="container">
-      <p class="tagline">ProTrack CV : Domptez vos candidatures, conquérez votre carrière.</p>
-      <h1 class="hero-title display-4">Domptez la Jungle de la Recherche d'Emploi.</h1>
-      <p class="hero-subtitle lead">
-        ProTrack CV est votre boussole et votre carnet de bord stratégique : organisez chaque piste, ne manquez aucune opportunité et naviguez avec confiance vers votre prochain succès professionnel.
+      <div class="section-badge">RÉSULTATS PROUVÉS</div>
+      <h2 class="section-title">L'impact réel sur votre carrière</h2>
+      <p class="section-subtitle">
+        Des milliers de personnes en recherche d'emploi ont déjà transformé leur approche avec ProTrack CV
       </p>
-      <div class="cta-buttons mt-4">
-        <button mat-raised-button color="primary" class="cta-button main-cta" (click)="navigateToRegister()">
-          <mat-icon>rocket_launch</mat-icon> Commencer Ma Quête (Inscription Gratuite)
-        </button>
-        <button mat-stroked-button color="accent" class="cta-button secondary-cta" (click)="navigateToLogin()">
-          <mat-icon>shield</mat-icon> J'ai déjà mon équipement (Connexion)
-        </button>
-      </div>
-      <p class="reassurance-text mt-3">
-        <span class="reassurance-item"><mat-icon class="icon-small">check_circle_outline</mat-icon> Gratuit pour démarrer</span>
-        <span class="reassurance-item"><mat-icon class="icon-small mx-2">thumb_up_off_alt</mat-icon> Simple à prendre en main</span>
-        <span class="reassurance-item"><mat-icon class="icon-small">lock_outline</mat-icon> Vos données en sécurité</span>
-      </p>
-      <div class="scroll-incentive">
-        <p>Curieux de savoir comment ProTrack CV peut vous guider ? Consultez l'Oracle...</p>
-        <mat-icon>keyboard_arrow_down</mat-icon>
-      </div>
-    </div>
-  </header>
 
-  <section class="oracle-section section-padding alternate-bg" id="oracle-section" aria-labelledby="oracleSectionTitle">
-    <div class="container text-center">
-      <h2 id="oracleSectionTitle" class="section-title">Consultez l'Oracle de ProTrack CV</h2>
-      <p class="lead mb-4">Quels défis entravent votre Quête ? Sélectionnez un ou plusieurs obstacles pour découvrir votre prophétie personnalisée.</p>
-      <div class="oracle-icon-placeholder my-3">
-        <mat-icon class="extra-large-icon color-secondary-accent-1">psychology</mat-icon> </div>
-      <div class="oracle-challenges">
-        <button mat-stroked-button class="challenge-button" (click)="getOracleRevelation('desorganisation')">
-          <mat-icon>lan</mat-icon> Mes candidatures sont un labyrinthe
-        </button>
-        <button mat-stroked-button class="challenge-button" (click)="getOracleRevelation('oublis')">
-          <mat-icon>watch_later</mat-icon> J'oublie souvent les relances
-        </button>
-        <button mat-stroked-button class="challenge-button" (click)="getOracleRevelation('manque_de_visibilite')">
-          <mat-icon>visibility_off</mat-icon> Je manque de visibilité sur mes progrès
-        </button>
-        <button mat-stroked-button class="challenge-button" (click)="getOracleRevelation('demotivation')">
-          <mat-icon>mood_bad</mat-icon> La motivation me fait défaut
-        </button>
-      </div>
-      <div id="oracleRevelationArea" class="revelation-area mt-4" aria-live="polite">
-        <div *ngIf="currentOracleRevelation" class="revelation-content" [class.revealed]="!!currentOracleRevelation">
-          <mat-icon class="revelation-icon">{{currentOracleRevelation.icon}}</mat-icon>
-          <h3>L'Oracle révèle :</h3>
-          <p><em>{{currentOracleRevelation.text}}</em></p>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-number">73%</span>
+          <div class="stat-label">d'augmentation du taux de réponse</div>
         </div>
-        <div *ngIf="!currentOracleRevelation && oracleInteracted" class="revelation-placeholder">
-          <p>L'Oracle attend votre consultation...</p> </div>
-      </div>
-       <div class="wisdom-artifact wisdom-artifact-oracle" (click)="toggleWisdom('oracle_wisdom')" matTooltip="Un conseil de l'Oracle..." [class.active]="activeWisdom === 'oracle_wisdom'">
-        <mat-icon>auto_stories</mat-icon>
-        <div class="wisdom-tooltip" *ngIf="activeWisdom === 'oracle_wisdom'">
-          <p><strong>Conseil de l'Oracle :</strong> "Connaître ses propres défis est le premier pas vers la maîtrise de sa quête. ProTrack CV éclaire votre chemin."</p>
+        <div class="stat-item">
+          <span class="stat-number">5h</span>
+          <div class="stat-label">économisées par semaine</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">2.5x</span>
+          <div class="stat-label">plus d'entretiens obtenus</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">45%</span>
+          <div class="stat-label">de réduction du temps de recherche</div>
         </div>
       </div>
-      <p class="lead mt-5 transition-to-solution">
-        Ces défis vous parlent ? Voyons plus en détail comment ils se manifestent...
-        <mat-icon class="inline-icon">keyboard_arrow_down</mat-icon>
-      </p>
     </div>
   </section>
 
-  <section class="problem-solution-section section-padding-tease" id="problem-solution-section" aria-labelledby="problemSectionTitle">
-    <div class="container text-center">
-      <h2 id="problemSectionTitle" class="section-title">Le Parcours du Combattant ? Plus Maintenant.</h2>
-      <p class="lead mb-5">La recherche d'emploi est une aventure exaltante, mais elle ne devrait pas être un combat solitaire contre des créatures mythiques...</p>
-      <div class="dragons-lair row">
-        <div class="col-md-4 dragon-item">
-          <div class="dragon-icon-placeholder"><mat-icon class="large-icon color-warning">unarchive</mat-icon></div>
-          <h3>Le Dragon de la Désorganisation</h3>
-          <p>Candidatures éparpillées, CVs introuvables, contacts perdus... Un véritable nid de complexité qui dévore votre temps précieux !</p>
-          <p class="benefit-highlight"><em>Notre objectif : vous faire gagner jusqu'à 5h par semaine.</em></p>
+  <!-- 3. Section Solution/Vos défis -->
+  <section id="solution" class="solution-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge solution-badge">VOS DÉFIS QUOTIDIENS</div>
+        <h2 class="section-title">La recherche d'emploi ne devrait pas être un parcours du combattant</h2>
+        <p class="section-subtitle">
+          Nous comprenons les difficultés que vous rencontrez au quotidien dans votre recherche d'emploi
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon apps"></div>
+          <h3 class="card-title">Candidatures dispersées</h3>
+          <p class="card-text">
+            Vos candidatures sont éparpillées entre emails, fichiers Excel et notes manuscrites. Impossible de garder une vue d'ensemble claire de votre progression.
+          </p>
         </div>
-        <div class="col-md-4 dragon-item">
-          <div class="dragon-icon-placeholder"><mat-icon class="large-icon color-danger">event_busy</mat-icon></div>
-          <h3>Le Spectre des Dates Oubliées</h3>
-          <p>Relances manquées, entretiens non préparés à temps... Le temps est un adversaire redoutable qui fait s'envoler les opportunités.</p>
-          <p class="benefit-highlight"><em>Visez le zéro oubli de relance grâce à nos alertes infaillibles.</em></p>
+
+        <div class="card">
+          <div class="card-icon schedule"></div>
+          <h3 class="card-title">Opportunités manquées</h3>
+          <p class="card-text">
+            Relances oubliées, délais de réponse dépassés, entretiens non préparés... Chaque oubli peut coûter le poste de vos rêves.
+          </p>
         </div>
-        <div class="col-md-4 dragon-item">
-          <div class="dragon-icon-placeholder"><mat-icon class="large-icon color-info">help_outline</mat-icon></div>
-          <h3>Le Brouillard du Doute</h3>
-          <p>Difficile de mesurer vos progrès, de garder la flamme de la motivation allumée face aux silences et aux refus.</p>
-          <p class="benefit-highlight"><em>Retrouvez clarté et confiance à chaque étape de votre avancée.</em></p>
+
+        <div class="card">
+          <div class="card-icon visibility"></div>
+          <h3 class="card-title">Progression invisible</h3>
+          <p class="card-text">
+            Sans visibilité sur vos statistiques et tendances, impossible d'optimiser votre stratégie de recherche et d'améliorer votre taux de succès.
+          </p>
         </div>
       </div>
-      <p class="lead mt-5 transition-to-solution">
-        Prêt à explorer les territoires que ProTrack CV vous aide à conquérir ?
-         <mat-icon class="inline-icon">keyboard_arrow_down</mat-icon>
-      </p>
     </div>
   </section>
 
-  <section class="map-section section-padding" id="map-section" aria-labelledby="mapSectionTitle">
-    <div class="container text-center">
-      <h2 id="mapSectionTitle" class="section-title">La Carte de Votre Conquête Professionnelle</h2>
-      <p class="lead mb-5">Avec ProTrack CV, chaque aspect de votre recherche devient un territoire maîtrisé. Explorez comment nous vous aidons à planter votre étendard sur chaque front.</p>
-      <div class="quest-map-visual-placeholder my-4">
-        <img src="assets/images/placeholder-quest-map.svg" alt="Carte des territoires de la recherche d'emploi" onError="this.style.display='none'">
-        <p *ngIf="!questMapImageLoaded">[Zone pour une illustration de carte de quête moderne et sobre]</p>
+  <!-- 4. Section Features/Solutions -->
+  <section id="features" class="solution-section features-bg">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge features-badge">NOS SOLUTIONS</div>
+        <h2 class="section-title">Des outils simples pour organiser votre recherche</h2>
+        <p class="section-subtitle">
+          Chaque fonctionnalité a été pensée pour vous faire gagner du temps et augmenter vos chances de succès
+        </p>
       </div>
-      <div class="territories-grid row">
-        <div class="col-md-4 territory-item" (mouseenter)="showTerritoryInfo('relances')" (mouseleave)="hideTerritoryInfo('relances')" [class.active]="activeTerritory === 'relances'">
-          <div class="territory-icon-placeholder"><mat-icon class="large-icon color-secondary-accent-2">forward_to_inbox</mat-icon></div>
-          <h4>Le Territoire des Relances Efficaces</h4>
-          <div class="territory-info" *ngIf="activeTerritory === 'relances'">
-            <p>ProTrack CV vous équipe de rappels et de modèles pour des relances percutantes qui ne passent pas inaperçues.</p>
-          </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon dashboard-custom"></div>
+          <h3 class="card-title">Vue d'ensemble claire</h3>
+          <p class="card-text">
+            Visualisez toutes vos candidatures en un coup d'œil. Statuts, prochaines actions, dates importantes : tout est organisé pour ne rien oublier.
+          </p>
         </div>
-        <div class="col-md-4 territory-item" (mouseenter)="showTerritoryInfo('reseau')" (mouseleave)="hideTerritoryInfo('reseau')" [class.active]="activeTerritory === 'reseau'">
-          <div class="territory-icon-placeholder"><mat-icon class="large-icon color-primary-accent">groups</mat-icon></div>
-          <h4>Le Royaume du Réseau Stratégique</h4>
-          <div class="territory-info" *ngIf="activeTerritory === 'reseau'">
-            <p>Suivez vos contacts, notez les échanges clés et transformez votre réseau en un puissant levier pour votre quête.</p>
-          </div>
+
+        <div class="card">
+          <div class="card-icon notifications"></div>
+          <h3 class="card-title">Rappels automatiques</h3>
+          <p class="card-text">
+            Ne ratez plus jamais une relance ou un entretien. Des notifications vous alertent au bon moment pour chaque action importante.
+          </p>
         </div>
-        <div class="col-md-4 territory-item" (mouseenter)="showTerritoryInfo('entretiens')" (mouseleave)="hideTerritoryInfo('entretiens')" [class.active]="activeTerritory === 'entretiens'">
-          <div class="territory-icon-placeholder"><mat-icon class="large-icon color-secondary-accent-1">record_voice_over</mat-icon></div>
-          <h4>Le Donjon des Entretiens Maîtrisés</h4>
-          <div class="territory-info" *ngIf="activeTerritory === 'entretiens'">
-            <p>Préparez chaque entrevue avec sérénité : notes, questions types, suivi post-entretien, tout est centralisé.</p>
-          </div>
+
+        <div class="card">
+          <div class="card-icon analytics"></div>
+          <h3 class="card-title">Suivi de vos progrès</h3>
+          <p class="card-text">
+            Voyez clairement où vous en êtes. Taux de réponse, sources les plus efficaces : adaptez votre stratégie pour plus de succès.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon network"></div>
+          <h3 class="card-title">Carnet de contacts</h3>
+          <p class="card-text">
+            Gardez trace de toutes vos rencontres et relations. Notez les échanges importants et transformez votre réseau en opportunités.
+          </p>
         </div>
       </div>
-      <p class="lead mt-5 transition-to-solution">
-        Ces territoires maîtrisés nécessitent un équipement de pointe. Découvrez votre arsenal...
-         <mat-icon class="inline-icon">keyboard_arrow_down</mat-icon>
-      </p>
     </div>
   </section>
 
-  <section class="features-section section-padding alternate-bg" id="features-section" aria-labelledby="featuresSectionTitle">
-    <div class="container text-center">
-      <h2 id="featuresSectionTitle" class="section-title">ProTrack CV : Votre Arsenal pour une Quête Réussie.</h2>
-      <p class="lead mb-5">Équipez-vous des meilleurs outils pour naviguer avec brio sur le marché de l'emploi.</p>
-      <div class="row features-grid">
-        <div class="col-lg-4 feature-item">
-          <div class="feature-icon-placeholder"><mat-icon class="extra-large-icon color-primary-accent">all_inbox</mat-icon></div>
-          <h3>L'Étendard de Ralliement : Centralisation Totale</h3>
-          <p>Fini les post-it et les fichiers Excel ! Toutes vos candidatures, entreprises, contacts et documents importants sont réunis en un seul camp de base stratégique.</p>
-          <div class="wisdom-artifact" (click)="toggleWisdom('centralisation_wisdom')" matTooltip="Le saviez-vous ?" [class.active]="activeWisdom === 'centralisation_wisdom'">
-            <mat-icon>menu_book</mat-icon>
-            <div class="wisdom-tooltip" *ngIf="activeWisdom === 'centralisation_wisdom'">
-              <p><strong>Perle de Sagesse :</strong> "Un esprit organisé est un esprit conquérant. La centralisation réduit le stress et libère votre énergie pour l'essentiel."</p>
+  <!-- 5. Section Demo/Aperçu -->
+  <section id="demo" class="solution-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge demo-badge">DÉCOUVERTE</div>
+        <h2 class="section-title">Voyez ProTrack CV en action</h2>
+        <p class="section-subtitle">
+          Une interface simple et intuitive, conçue pour vous faire gagner du temps
+        </p>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-preview">
+          <div class="demo-content">
+            <h4 class="demo-title">Tableau de bord - Aperçu</h4>
+            <div class="demo-stats">
+              <div class="demo-stat">
+                <div class="demo-stat-number accent">12</div>
+                <div class="demo-stat-label">Candidatures actives</div>
+              </div>
+              <div class="demo-stat">
+                <div class="demo-stat-number secondary">5</div>
+                <div class="demo-stat-label">Entretiens programmés</div>
+              </div>
+              <div class="demo-stat">
+                <div class="demo-stat-number warning">3</div>
+                <div class="demo-stat-label">Relances à faire</div>
+              </div>
+            </div>
+            <div class="demo-actions">
+              <div class="demo-actions-title">Prochaines actions</div>
+              <div class="demo-action">📧 Relancer TechCorp - Dans 2 jours</div>
+              <div class="demo-action">📞 Entretien StartupXYZ - Demain 14h</div>
+              <div class="demo-action">📝 Préparer présentation - Dans 3 jours</div>
             </div>
           </div>
         </div>
-        <div class="col-lg-4 feature-item">
-          <div class="feature-icon-placeholder"><mat-icon class="extra-large-icon color-secondary-accent-1">notifications_active</mat-icon></div>
-          <h3>La Corne de Vigilance : Suivi & Rappels Intelligents</h3>
-          <p>Soyez toujours prêt ! ProTrack CV vous alerte pour les relances cruciales, les dates d'entretien et toutes les étapes clés de votre quête.</p>
-        </div>
-        <div class="col-lg-4 feature-item">
-          <div class="feature-icon-placeholder"><mat-icon class="extra-large-icon color-secondary-accent-2">trending_up</mat-icon></div>
-          <h3>La Carte du Conquérant : Progrès & Statistiques Éclairantes</h3>
-          <p>Visualisez votre avancée, identifiez ce qui fonctionne et ajustez votre stratégie. Chaque action compte, ProTrack CV vous le montre !</p>
-        </div>
-      </div>
-      <p class="lead mt-5 transition-to-solution">
-        Maintenant équipé(e), il est temps de passer à l'action finale !
-         <mat-icon class="inline-icon">keyboard_arrow_down</mat-icon>
-      </p>
-    </div>
-  </section>
-
-  <section class="final-cta-section section-padding text-center" id="final-cta-section" aria-labelledby="finalCtaTitle">
-    <div class="container">
-      <h2 id="finalCtaTitle" class="section-title">Votre Prochaine Grande Aventure Professionnelle Vous Attend.</h2>
-      <p class="lead mb-4">
-        Avec ProTrack CV, vous avez toutes les cartes en main pour transformer votre recherche d'emploi en une épopée victorieuse. Moins de stress, plus d'efficacité, et un chemin clair vers le poste que vous méritez.
-      </p>
-      <button mat-raised-button color="primary" class="cta-button main-cta large-cta" (click)="navigateToRegister()">
-        <mat-icon>military_tech</mat-icon> Je Rejoins l'Aventure ProTrack CV (C'est Gratuit !)
-      </button>
-      <div class="sharing-nudge mt-4">
-        <p>P.S. : Un ami chevalier est aussi en quête ? Faites-lui découvrir cet allié précieux !</p>
-        <button mat-icon-button (click)="shareOnLinkedIn()" aria-label="Partager ProTrack CV sur LinkedIn">
-            <mat-icon svgIcon="linkedin-custom"></mat-icon> LinkedIn
-        </button>
-        <button mat-icon-button (click)="shareByEmail()" aria-label="Partager ProTrack CV par Email">
-            <mat-icon>email</mat-icon> Email
-        </button>
+        <p class="demo-note">
+          Interface réelle simplifiée - Découvrez toutes les fonctionnalités en vous inscrivant
+        </p>
       </div>
     </div>
   </section>
 
-  <footer class="homepage-footer text-center py-4" id="homepage-footer">
+  <!-- 6. Section CTA Final/Prêt à commencer -->
+  <section id="cta" class="stats-section">
+    <div class="container cta-container">
+      <div class="section-header">
+        <div class="section-badge">PRÊT À COMMENCER ?</div>
+        <h2 class="section-title">Votre prochain emploi vous attend</h2>
+        <p class="section-subtitle">
+          Rejoignez des milliers de personnes qui ont déjà simplifié et optimisé leur recherche d'emploi avec ProTrack CV
+        </p>
+      </div>
+
+      <div class="cta-main">
+        <button class="btn btn-primary btn-large" (click)="startFree()">
+          Commencer gratuitement maintenant
+        </button>
+      </div>
+
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <div class="benefit-icon">⚡</div>
+          <div class="benefit-text">Prêt en 2 minutes</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">💳</div>
+          <div class="benefit-text">Aucune carte requise</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">🎧</div>
+          <div class="benefit-text">Aide disponible</div>
+        </div>
+      </div>
+
+      <div class="social-share">
+        <p class="share-text">
+          Partagez ProTrack CV avec vos amis en recherche d'emploi
+        </p>
+        <div class="social-buttons">
+          <button class="social-btn" (click)="shareOnFacebook()">
+            <div class="social-icon facebook"></div>
+            Facebook
+          </button>
+          <button class="social-btn" (click)="shareOnLinkedIn()">
+            <div class="social-icon linkedin"></div>
+            LinkedIn
+          </button>
+          <button class="social-btn" (click)="shareOnTwitter()">
+            <div class="social-icon twitter"></div>
+            Twitter
+          </button>
+          <button class="social-btn" (click)="shareOnInstagram()">
+            <div class="social-icon instagram"></div>
+            Instagram
+          </button>
+          <button class="social-btn" (click)="shareOnTikTok()">
+            <div class="social-icon tiktok"></div>
+            TikTok
+          </button>
+          <button class="social-btn" (click)="shareOnYouTube()">
+            <div class="social-icon youtube"></div>
+            YouTube
+          </button>
+          <button class="social-btn" (click)="shareOnWhatsApp()">
+            <div class="social-icon whatsapp"></div>
+            WhatsApp
+          </button>
+          <button class="social-btn" (click)="shareByEmail()">
+            <div class="social-icon email"></div>
+            Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
     <div class="container">
-      <p>&copy; {{ currentYear }} ProTrack CV. Tous droits réservés.</p>
-      <p>
-        <a routerLink="/privacy-policy">Politique de confidentialité</a> |
-        <a routerLink="/terms-of-service">Conditions d'utilisation</a>
-      </p>
+      <div class="footer-content">
+        <p>&copy; 2025 ProTrack CV. Tous droits réservés.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#" class="footer-link">Politique de confidentialité</a>
+        <a href="#" class="footer-link">Conditions d'utilisation</a>
+        <a href="#" class="footer-link">Support</a>
+      </div>
     </div>
   </footer>
 </div>

@@ -7,20 +7,36 @@
 // Importation des icônes Material
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-// Importation de la police Roboto (recommandée par Material Design)
+// Importation des polices
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
 
 // Variables globales
 :root {
-  --color-primary: #3f51b5;
-  --color-accent: #ff4081;
-  --color-warn: #f44336;
-  --color-success: #4caf50;
-  --color-info: #2196f3;
-  --color-background: #f4f6f8;
-  --color-surface: #ffffff;
-  --color-error: #f44336;
-  --focus-outline-color: #1976d2;
+  // Couleurs de ProTrack CV (nouvelle palette)
+  --protrack-primary: #0A0E27;
+  --protrack-primary-light: #1E293B;
+  --protrack-secondary: #3B82F6;
+  --protrack-secondary-light: #60A5FA;
+  --protrack-accent: #10B981;
+  --protrack-accent-light: #34D399;
+  --protrack-warning: #F59E0B;
+  --protrack-surface: #FFFFFF;
+  --protrack-surface-alt: #F8FAFC;
+  --protrack-text-primary: #0F172A;
+  --protrack-text-secondary: #64748B;
+
+  // Variables globales de l'application (utilisant la nouvelle palette)
+  --color-primary: var(--protrack-primary);
+  --color-accent: var(--protrack-accent);
+  --color-warn: var(--protrack-warning);
+  --color-success: var(--protrack-accent); // Souvent, l'accent est aussi la couleur de succès
+  --color-info: var(--protrack-secondary);
+  --color-background: var(--protrack-surface-alt); // Fond général de l'application
+  --color-surface: var(--protrack-surface); // Fond des cartes, dialogues, etc.
+  --color-error: #f44336; // Garder une couleur d'erreur standard si non définie dans la palette
+  --focus-outline-color: var(--protrack-secondary-light); // Pour la visibilité du focus
   --focus-outline-width: 3px;
 }
 
@@ -36,27 +52,24 @@ html, body {
 }
 
 body {
-  font-family: 'Roboto', "Helvetica Neue", sans-serif;
+  font-family: 'Inter', 'Roboto', "Helvetica Neue", sans-serif; // Police mise à jour pour correspondre à ProTrack CV
   background-color: var(--color-background);
-  color: #333;
-  line-height: 1.5;
+  color: var(--protrack-text-primary); // Couleur de texte principale de ProTrack CV
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 // Styles d'accessibilité globaux
-// Focus visible pour tous les éléments interactifs
 :focus-visible {
   outline: var(--focus-outline-width) solid var(--focus-outline-color);
   outline-offset: 2px;
 }
 
-// Désactiver le focus outline par défaut pour les clics souris
 :focus:not(:focus-visible) {
   outline: none;
 }
 
-// Classe utilitaire pour le contenu accessible uniquement aux lecteurs d'écran
 .sr-only {
   position: absolute;
   width: 1px;
@@ -69,16 +82,15 @@ body {
   border: 0;
 }
 
-// Skip to content link pour l'accessibilité
 .skip-to-content {
   position: absolute;
-  top: -40px;
+  top: -40px; /* Ajusté pour être masqué par défaut */
   left: 0;
   background: var(--color-primary);
   color: white;
-  padding: 8px;
+  padding: 8px 12px; /* Padding ajusté */
   text-decoration: none;
-  z-index: 100;
+  z-index: 10000; /* Z-index élevé pour être au-dessus de tout */
 
   &:focus {
     top: 0;
@@ -97,64 +109,71 @@ body {
   }
 }
 
-// Mode sombre (si l'utilisateur le préfère)
-@media (prefers-color-scheme: dark) {
-  // À implémenter selon vos besoins
-}
-
-// Ajustements typographiques globaux
+// Ajustements typographiques globaux pour Angular Material
 .mat-typography {
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 500;
+    font-family: 'Poppins', 'Roboto', sans-serif; // Police des titres de ProTrack CV
+    font-weight: 700; // Poids des titres de ProTrack CV
     margin-top: 0;
+    color: var(--protrack-text-primary);
   }
 
   h1 {
-    font-size: 2rem;
+    font-size: clamp(2rem, 4vw, 3rem); // Correspondant à .section-title
     margin-bottom: 1rem;
+    line-height: 1.2;
   }
 
   h2 {
-    font-size: 1.75rem;
+    font-size: clamp(1.5rem, 3vw, 2.5rem); // Taille intermédiaire
     margin-bottom: 0.75rem;
+    line-height: 1.2;
   }
 
   h3 {
-    font-size: 1.5rem;
+    font-size: 1.5rem; // Correspondant à .card-title
     margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  p, body, div, span, input, textarea, button, select, option { // Appliquer la police Inter par défaut
+    font-family: 'Inter', 'Roboto', sans-serif;
+    color: var(--protrack-text-secondary); // Couleur de texte secondaire par défaut
   }
 
   p {
     margin-top: 0;
     margin-bottom: 1rem;
+    line-height: 1.6;
   }
 }
 
-// Styles pour les snackbars
-.mdc-snackbar__surface {
-  border-radius: 6px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+
+// Styles pour les snackbars Material
+.mdc-snackbar__surface { // Cible la classe correcte pour les versions récentes de Material
+  border-radius: 12px !important; // Arrondi de ProTrack CV
+  box-shadow: var(--shadow-lg) !important; // Ombre de ProTrack CV
 }
 
 // Classes personnalisées pour les snackbars
 .custom-snackbar {
   &.info-snackbar .mdc-snackbar__surface {
-    background-color: var(--color-info) !important;
+    background-color: var(--protrack-secondary) !important;
     color: white !important;
   }
 
   &.warn-snackbar .mdc-snackbar__surface {
-    background-color: var(--color-warn) !important;
-    color: white !important;
+    background-color: var(--protrack-warning) !important;
+    color: var(--protrack-text-primary) !important; // Texte plus foncé pour le jaune
   }
 
   &.success-snackbar .mdc-snackbar__surface {
-    background-color: var(--color-success) !important;
+    background-color: var(--protrack-accent) !important;
     color: white !important;
   }
 
   &.error-snackbar .mdc-snackbar__surface {
-    background-color: var(--color-error) !important;
+    background-color: var(--color-error) !important; // Garder une couleur d'erreur distincte
     color: white !important;
   }
 }
@@ -166,16 +185,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--protrack-surface-alt); // Fond de la piste
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--protrack-text-secondary); // Couleur du pouce
   border-radius: 10px;
 
   &:hover {
-    background: #a1a1a1;
+    background: var(--protrack-primary-light); // Couleur au survol
   }
 }
 
@@ -202,18 +221,17 @@ body {
 // Ajustements pour les appareils mobiles
 @media (max-width: 768px) {
   body {
-    font-size: 14px;
+    font-size: 14px; // Taille de police de base pour mobile
   }
 
-  .mat-cell, .mat-header-cell {
+  .mat-mdc-cell, .mat-mdc-header-cell { // Classes pour Material v15+
     padding-left: 10px !important;
     padding-right: 10px !important;
     font-size: 0.9rem;
   }
 
-  // Augmenter la taille des zones de clic pour le tactile
-  .mat-icon-button {
-    width: 44px !important; // Taille minimale recommandée pour les cibles tactiles
+  .mat-mdc-icon-button { // Classes pour Material v15+
+    width: 44px !important;
     height: 44px !important;
     line-height: 44px !important;
 
@@ -224,15 +242,15 @@ body {
     }
   }
 
-  button, a {
+  button, a { // S'assurer que les cibles tactiles sont assez grandes
     min-height: 44px;
     min-width: 44px;
   }
 
-  // Dialogues responsifs
-  .mat-mdc-dialog-container .mdc-dialog__surface {
+  .mat-mdc-dialog-container .mdc-dialog__surface { // Classes pour Material v15+
     max-width: calc(100vw - 32px) !important;
     margin: 16px !important;
+    border-radius: 20px !important; // Arrondi de ProTrack CV pour les dialogues
   }
 }
 
@@ -258,38 +276,42 @@ body {
 
 // Amélioration de la sélection de texte
 ::selection {
-  background-color: var(--color-primary);
+  background-color: var(--protrack-accent); // Couleur de sélection de ProTrack CV
   color: white;
 }
 
 // Style pour les liens
 a {
-  color: var(--color-primary);
+  color: var(--protrack-secondary); // Couleur des liens de ProTrack CV
   text-decoration: none;
+  transition: color 0.3s ease;
 
   &:hover {
-    text-decoration: underline;
+    color: var(--protrack-secondary-light); // Couleur au survol
+    text-decoration: none; // Pas de soulignement par défaut, sauf si spécifié
   }
 
-  &:focus-visible {
+  &:focus-visible { // Style de focus cohérent
     outline: var(--focus-outline-width) solid var(--focus-outline-color);
     outline-offset: 2px;
+    border-radius: 4px; // Léger arrondi pour le focus
   }
 }
 
 // Amélioration des formulaires pour l'accessibilité
 form {
-  .mat-form-field {
+  .mat-mdc-form-field { // Classes pour Material v15+
     width: 100%;
   }
 }
 
 // Messages d'erreur accessibles
 .error-message,
-.mat-error {
+.mat-mdc-form-field-error { // Classes pour Material v15+
   color: var(--color-error);
   font-size: 0.875rem;
   margin-top: 0.25rem;
+  font-family: 'Inter', sans-serif;
 }
 
 // Indicateurs de chargement
@@ -299,12 +321,14 @@ form {
   align-items: center;
   min-height: 200px;
 
-  mat-spinner {
-    margin: 0 auto;
+  mat-spinner { // Style par défaut de mat-spinner, peut être surchargé si besoin
+    circle {
+      stroke: var(--protrack-accent) !important; // Couleur du spinner
+    }
   }
 }
 
-// Tables responsives
+// Tables responsives (si vous utilisez mat-table)
 .mat-table {
   @media (max-width: 768px) {
     .mat-header-row {
@@ -313,15 +337,16 @@ form {
 
     .mat-row {
       display: block;
-      border-bottom: 2px solid #ddd;
+      border-bottom: 1px solid var(--protrack-text-secondary); // Bordure plus subtile
       padding: 8px 0;
     }
 
     .mat-cell {
       display: block;
       text-align: right;
-      padding-left: 50%;
+      padding-left: 50%; // Laisse de la place pour le label
       position: relative;
+      border-bottom: none; // Pas de double bordure
 
       &:before {
         content: attr(data-label);
@@ -329,7 +354,8 @@ form {
         left: 6px;
         width: 45%;
         text-align: left;
-        font-weight: bold;
+        font-weight: 600; // Label en gras
+        color: var(--protrack-text-primary);
       }
     }
   }
@@ -342,7 +368,7 @@ form {
   cursor: not-allowed !important;
 }
 
-// Animation de chargement pour les boutons
+// Animation de chargement pour les boutons (si vous avez une classe .button-loading)
 @keyframes button-loading {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -350,20 +376,89 @@ form {
 
 .button-loading {
   position: relative;
-  color: transparent !important;
+  color: transparent !important; // Masque le texte du bouton pendant le chargement
 
   &::after {
     content: "";
     position: absolute;
     width: 16px;
     height: 16px;
-    top: 50%;
-    left: 50%;
-    margin-left: -8px;
-    margin-top: -8px;
-    border: 2px solid #ffffff;
+    top: calc(50% - 8px); // Centrage vertical
+    left: calc(50% - 8px); // Centrage horizontal
+    border: 2px solid rgba(255, 255, 255, 0.5); // Couleur du spinner (blanc semi-transparent)
     border-radius: 50%;
-    border-top-color: transparent;
+    border-top-color: white; // Couleur de la partie "active" du spinner
     animation: button-loading 0.8s linear infinite;
   }
 }
+
+// S'assurer que les éléments Material utilisent les bonnes polices
+.mat-mdc-button-persistent-ripple { // Classes pour Material v15+
+  font-family: 'Inter', 'Roboto', sans-serif !important;
+}
+.mat-mdc-menu-item, .mat-mdc-menu-trigger { // Classes pour Material v15+
+  font-family: 'Inter', 'Roboto', sans-serif !important;
+}
+.mat-mdc-list-item { // Classes pour Material v15+
+  font-family: 'Inter', 'Roboto', sans-serif !important;
+}
+.mat-mdc-tooltip { // Classes pour Material v15+
+  font-family: 'Inter', 'Roboto', sans-serif !important;
+  background-color: var(--protrack-primary-light) !important;
+  color: white !important;
+  border-radius: 8px !important; // Arrondi pour les tooltips
+  padding: 8px 12px !important;
+}
+
+// Styles spécifiques pour la toolbar si elle utilise la couleur primaire de Material
+.mat-toolbar.mat-primary { // Pour la toolbar de app.component.html si elle utilise color="primary"
+  background: var(--protrack-primary) !important; // Appliquer la couleur primaire de ProTrack CV
+  color: white !important;
+}
+
+// Styles pour les boutons Material
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-stroked-button, .mat-mdc-flat-button { // Classes pour Material v15+
+  border-radius: 12px !important; // Arrondi de ProTrack CV pour les boutons
+  padding: 10px 24px !important; // Padding standard pour les boutons
+  font-weight: 600 !important;
+  line-height: normal !important; // Assurer un bon alignement vertical du texte
+
+  &.mat-primary {
+    background-color: var(--protrack-secondary) !important; // Boutons primaires avec la couleur secondaire de ProTrack
+    color: white !important;
+    &:hover {
+      background-color: var(--protrack-secondary-light) !important;
+    }
+  }
+  &.mat-accent {
+    background-color: var(--protrack-accent) !important;
+    color: white !important;
+    &:hover {
+      background-color: var(--protrack-accent-light) !important;
+    }
+  }
+  &.mat-warn {
+    background-color: var(--protrack-warning) !important;
+    color: var(--protrack-text-primary) !important;
+    &:hover {
+      background-color: color-mix(in srgb, var(--protrack-warning) 90%, black) !important;
+    }
+  }
+}
+
+.mat-mdc-stroked-button.mat-primary {
+  border-color: var(--protrack-secondary) !important;
+  color: var(--protrack-secondary) !important;
+  background-color: transparent !important;
+   &:hover {
+      background-color: rgba(var(--protrack-secondary-rgb, 59, 130, 246), 0.08) !important; // Utiliser RGB pour la transparence
+      color: var(--protrack-secondary-light) !important;
+      border-color: var(--protrack-secondary-light) !important;
+    }
+}
+// Définir --protrack-secondary-rgb si ce n'est pas déjà fait
+:root {
+  // ... autres variables ...
+  --protrack-secondary-rgb: 59, 130, 246; // RGB de #3B82F6
+}
+

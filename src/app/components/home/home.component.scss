@@ -1,322 +1,836 @@
-// src/app/components/home/home.component.scss
+// Fichier : src/app/home/home.component.scss
 
-// Variables de couleurs "Quête Sobre"
-$hero-bg-color: #2C3E50;
-$hero-text-color: #F0F0F0;
-$light-section-bg: #F8F9FA;
-$light-section-text-color: #343A40;
-$primary-accent-color: #B08D57;    // Or Mat
-$secondary-accent-color-1: #34568B; // Bleu Saphir
-$secondary-accent-color-2: #00695C; // Vert Émeraude
-$warning-color: #ffc107;
-$danger-color: #f44336;
-$info-color: #2196f3;
+// Importation des variables de couleur globales si elles sont définies dans un fichier séparé
+// @import 'path/to/your/global-variables';
+// Sinon, on peut les redéfinir ici ou s'assurer qu'elles sont disponibles via :root dans styles.scss
 
-$font-family-titles: 'Merriweather', serif;
-$font-family-text: 'Lato', sans-serif;
+// Utilisation des variables globales définies dans styles.scss via :root
+// Pas besoin de redéfinir les variables --protrack-xxx ici si elles sont bien dans :root de styles.scss
 
-$sidebar-width: 60px;
-$sidebar-width-hover: 200px; // Augmenté pour plus de texte
-$sidebar-icon-size: 24px;
-
-@mixin section-padding($padding-y: 4rem) {
-  padding-top: $padding-y;
-  padding-bottom: $padding-y;
+// Styles généraux pour le conteneur du composant home
+:host {
+  display: block; // Nécessaire pour que le composant prenne de la place
+  width: 100%;
+  overflow-x: hidden; // Empêche le défilement horizontal sur la page d'accueil
 }
 
-// --- Styles de la Sidebar "Carte de la Quête" ---
+// Styles pour la sidebar de navigation (quest-sidebar)
 .quest-sidebar {
   position: fixed;
   top: 50%;
-  left: 0;
+  left: 20px;
   transform: translateY(-50%);
-  background-color: rgba(darken($hero-bg-color, 5%), 0.9);
-  backdrop-filter: blur(8px);
-  border-radius: 0 12px 12px 0;
-  padding: 15px 0;
-  width: $sidebar-width;
-  z-index: 1001;
-  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); // Transition plus douce
-  box-shadow: 3px 0px 15px rgba(0,0,0,0.25);
+  background: rgba(10, 14, 39, 0.98); // Utilisation directe de la couleur --protrack-primary avec opacité
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 16px 0;
+  width: 64px;
+  z-index: 1000; // Au-dessus du contenu de la page
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  &:hover {
+    width: 280px; // Largeur au survol
+  }
 
   ul {
     list-style: none;
-    padding: 0;
-    margin: 0;
-
-    li {
-      a {
-        display: flex;
-        align-items: center;
-        padding: 12px 18px;
-        color: rgba($hero-text-color, 0.75);
-        text-decoration: none;
-        transition: background-color 0.25s ease, color 0.25s ease;
-        white-space: nowrap;
-        overflow: hidden;
-        cursor: pointer; // Indiquer que c'est cliquable
-
-        .mat-icon {
-          font-size: $sidebar-icon-size;
-          height: $sidebar-icon-size;
-          width: $sidebar-icon-size;
-          margin-right: 0;
-          transition: margin-right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-          flex-shrink: 0; // Empêcher l'icône de rétrécir
-        }
-
-        .nav-text {
-          opacity: 0;
-          visibility: hidden;
-          margin-left: 15px;
-          font-size: 0.9rem;
-          font-weight: 500; // Un peu plus de poids pour la lisibilité
-          transition: opacity 0.2s ease-in-out 0.1s, visibility 0.2s ease-in-out 0.1s;
-        }
-
-        &:hover, &:focus { // Ajouter :focus pour l'accessibilité
-          background-color: rgba($primary-accent-color, 0.25);
-          color: $primary-accent-color;
-        }
-
-        &.active {
-          background-color: $primary-accent-color;
-          color: $hero-bg-color;
-          font-weight: bold; // Rendre le texte actif plus visible
-
-          .mat-icon {
-             color: $hero-bg-color; // Assurer la visibilité de l'icône
-          }
-        }
-      }
-    }
+    padding: 0; // Reset du padding
+    margin: 0; // Reset de la marge
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
-  &:hover {
-    width: $sidebar-width-hover;
-    ul li a {
-      .mat-icon { margin-right: 12px; }
-      .nav-text { opacity: 1; visibility: visible; }
-    }
-  }
-}
+  li {
+    padding: 0 8px; // Espacement interne pour les éléments de la liste
 
-
-.homepage-container {
-  font-family: $font-family-text;
-  color: $light-section-text-color;
-  line-height: 1.6;
-  // Ajuster le padding si la sidebar est toujours visible et ne se superpose pas
-  // Si la sidebar est toujours de $sidebar-width, ajouter ce padding :
-  // padding-left: $sidebar-width + 20px;
-
-  .section-title { /* ... */ }
-  .lead { /* ... */ }
-  .my-4, .mt-3, .mb-4, .mb-5, .py-4, .mx-2 { /* ... */ } // Utilitaires
-  .section-padding { @include section-padding(); }
-  .section-padding-tease { @include section-padding(2.5rem); }
-  .text-center { text-align: center; }
-  .alternate-bg { background-color: $light-section-bg; }
-
-  .mat-icon {
-    &.icon-small { /* ... */ }
-    &.large-icon { /* ... */ }
-    &.extra-large-icon { /* ... */ }
-    &.inline-icon { vertical-align: bottom; font-size: 1.2em; }
-  }
-
-  .color-primary-accent { color: $primary-accent-color; }
-  .color-secondary-accent-1 { color: $secondary-accent-color-1; }
-  .color-secondary-accent-2 { color: $secondary-accent-color-2; }
-  .color-warning { color: $warning-color; }
-  .color-danger { color: $danger-color; }
-  .color-info { color: $info-color; }
-
-  .hero-section {
-    /* ... (styles existants) ... */
-    .scroll-incentive {
-      /* ... (styles existants) ... */
-      .mat-icon { animation: bounceArrow 2s infinite; }
-    }
-  }
-
-  // --- Section Oracle des Opportunités ---
-  .oracle-section {
-    .oracle-icon-placeholder .mat-icon {
-      // Style spécifique pour l'icône de l'oracle si besoin
-      color: $secondary-accent-color-1; // Bleu Saphir
-    }
-    .oracle-challenges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-      margin-top: 1.5rem;
-      .challenge-button {
-        border-color: rgba($primary-accent-color, 0.7);
-        color: $primary-accent-color;
-        .mat-icon { margin-right: 0.5rem; }
-        &:hover {
-          background-color: rgba($primary-accent-color, 0.1);
-          border-color: $primary-accent-color;
-        }
-      }
-    }
-    .revelation-area {
-      min-height: 100px; // Pour éviter les sauts de page
-      margin-top: 2rem;
-      padding: 1.5rem;
-      background-color: rgba($hero-bg-color, 0.05); // Fond très subtil
-      border-radius: 8px;
-      border: 1px solid rgba($primary-accent-color, 0.2);
-      .revelation-content {
-        opacity: 0;
-        transform: translateY(10px);
-        transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-        &.revealed { // Classe à ajouter via TS pour l'animation
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .revelation-icon {
-          font-size: 2rem;
-          color: $primary-accent-color; // Or
-          margin-bottom: 0.5rem;
-        }
-        h3 {
-          font-family: $font-family-titles;
-          color: $secondary-accent-color-1; // Bleu Saphir
-          margin-bottom: 0.5rem;
-        }
-        p { font-style: italic; }
-      }
-      .revelation-placeholder p {
-        color: lighten($light-section-text-color, 30%);
-        font-style: italic;
-      }
-    }
-  }
-
-  // --- Section Carte des Territoires Inexplorés ---
-  .map-section {
-    background-color: #fff; // Fond blanc pour cette section
-    .quest-map-visual-placeholder {
-      // background-color: $light-section-bg; // Ou une image de fond
-      min-height: 200px; // Ajuster
+    a {
       display: flex;
       align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-      img { max-width: 100%; height: auto; opacity: 0.7; }
-      p { font-style: italic; color: lighten($light-section-text-color, 20%); }
-    }
-    .territories-grid {
-      .territory-item {
-        padding: 1.5rem;
-        border: 1px solid transparent; // Pour la transition
-        border-radius: 8px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-        cursor: default; // Ou 'pointer' si on veut un clic pour afficher info fixe
+      padding: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border-radius: 12px;
+      min-height: 48px;
+      position: relative;
+      overflow: hidden; // Pour les effets de texte ou d'icône
 
-        &:hover, &.active { // &.active si on gère un état cliqué
-          transform: translateY(-5px);
-          box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-          border-color: rgba($primary-accent-color, 0.5);
-        }
+      &:hover, &:focus { // Ajout de :focus pour l'accessibilité
+        color: white;
+        background: rgba(16, 185, 129, 0.15); // Utilisation directe de la couleur --protrack-accent avec opacité
+        transform: translateX(2px);
+      }
 
-        h4 {
-          font-family: $font-family-titles;
-          color: $secondary-accent-color-1; // Bleu Saphir
-          margin-top: 0.75rem;
-          margin-bottom: 0.5rem;
-        }
-        .territory-info {
-          font-size: 0.9rem;
-          color: lighten($light-section-text-color, 10%);
-          // Style pour l'affichage au survol (peut être géré par *ngIf ou classes CSS)
-          // Par défaut, il est affiché s'il est dans le DOM via *ngIf
-          // On pourrait ajouter une animation d'apparition
-          opacity: 0;
-          max-height: 0;
-          overflow: hidden;
-          transition: opacity 0.3s ease, max-height 0.3s ease;
-        }
-        &:hover .territory-info, &.active .territory-info {
-            opacity: 1;
-            max-height: 100px; // Assez grand pour le contenu
-        }
+      &.active {
+        color: white;
+        background: linear-gradient(135deg, var(--protrack-accent) 0%, color-mix(in srgb, var(--protrack-accent) 80%, black) 100%); // Utilisation du dégradé --gradient-accent
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); // Utilisation directe de la couleur --protrack-accent avec opacité
       }
     }
   }
-
-  // --- Artefacts de Sagesse ---
-  .wisdom-artifact {
-    display: inline-flex; // Ou block avec margin auto pour centrer
-    align-items: center;
-    padding: 8px 12px;
-    margin-top: 1.5rem;
-    border-radius: 20px;
-    background-color: rgba($primary-accent-color, 0.1);
-    color: $primary-accent-color; // Or
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    position: relative; // Pour le tooltip
-
-    .mat-icon { margin-right: 8px; }
-
-    &:hover, &.active {
-      background-color: rgba($primary-accent-color, 0.2);
-    }
-
-    .wisdom-tooltip {
-      display: none; // Caché par défaut, géré par *ngIf
-      position: absolute;
-      bottom: 100%; // Au-dessus de l'icône
-      left: 50%;
-      transform: translateX(-50%) translateY(-10px); // Centrer et espacer
-      background-color: darken($hero-bg-color, 5%); // Fond sombre
-      color: $hero-text-color; // Texte clair
-      padding: 10px 15px;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      width: 250px; // Largeur du tooltip
-      font-size: 0.85rem;
-      z-index: 10; // Pour être au-dessus
-
-      // Flèche du tooltip (optionnel)
-      &::after {
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: darken($hero-bg-color, 5%) transparent transparent transparent;
-      }
-    }
-     &.active .wisdom-tooltip { // S'affiche quand activeWisdom correspond
-        display: block;
-     }
-  }
-  .wisdom-artifact-oracle { // Positionnement spécifique si besoin
-    margin-left: auto;
-    margin-right: auto;
-    display: table; // Pour centrer un inline-flex
-  }
-
-
-  .problem-solution-section { /* ... (styles existants) ... */ }
-  .features-section { /* ... (styles existants) ... */ }
-  .final-cta-section { /* ... (styles existants) ... */ }
-  .homepage-footer { /* ... (styles existants) ... */ }
-
-  @keyframes bounceArrow { /* ... (animation existante) ... */ }
-  // Styles responsifs (existants, à compléter)
-  @media (max-width: 992px) { /* ... */ }
-  @media (max-width: 767px) { /* ... */ }
-  .row > [class*="col-"] { /* ... */ }
-  @media (min-width: 768px) { /* ... */ }
-  @media (min-width: 992px) { /* ... */ }
-  .visually-hidden { /* ... */ }
 }
+
+// Icônes de navigation dans la sidebar
+.nav-icon {
+  width: 22px;
+  height: 22px;
+  margin-right: 0; // Marge à droite initiale
+  transition: margin-right 0.3s ease; // Transition pour la marge
+  flex-shrink: 0;
+  position: relative; // Pour le positionnement des pseudo-éléments
+
+  // Lorsque la sidebar est survolée, l'icône a une marge
+  .quest-sidebar:hover & {
+    margin-right: 16px;
+  }
+
+  // Styles spécifiques pour chaque icône (utilisation de pseudo-éléments)
+  &.home {
+    &::before {
+      content: ''; position: absolute; width: 18px; height: 12px;
+      background: currentColor; top: 10px; left: 2px;
+    }
+    &::after {
+      content: ''; position: absolute; width: 0; height: 0;
+      border-left: 11px solid transparent; border-right: 11px solid transparent;
+      border-bottom: 8px solid currentColor; top: 2px; left: 0;
+    }
+  }
+  &.trending {
+    &::before {
+      content: ''; position: absolute; width: 16px; height: 2px;
+      background: currentColor; top: 10px; left: 3px; transform: rotate(45deg);
+    }
+    &::after {
+      content: ''; position: absolute; width: 0; height: 0;
+      border-left: 4px solid transparent; border-right: 4px solid transparent;
+      border-bottom: 6px solid currentColor; top: 4px; right: 2px; transform: rotate(45deg);
+    }
+  }
+  &.psychology {
+    background: currentColor; border-radius: 50%;
+    width: 18px; height: 18px; top: 2px; left: 2px;
+  }
+  &.dashboard {
+    &::before {
+      content: ''; position: absolute; width: 7px; height: 7px;
+      background: currentColor; top: 2px; left: 2px;
+      box-shadow: 11px 0 currentColor, 0 11px currentColor, 11px 11px currentColor;
+    }
+  }
+  &.visibility { // Icône "visibility"
+    background: currentColor; border-radius: 50%;
+    width: 18px; height: 18px; top: 2px; left: 2px;
+    &::after {
+      content: ''; position: absolute; width: 6px; height: 6px;
+      background: var(--protrack-primary); // Couleur de fond de la sidebar
+      border-radius: 50%; top: 6px; left: 6px;
+    }
+  }
+  &.rocket {
+    &::before {
+      content: ''; position: absolute; width: 0; height: 0;
+      border-left: 6px solid transparent; border-right: 6px solid transparent;
+      border-bottom: 18px solid currentColor; top: 2px; left: 5px;
+    }
+  }
+}
+
+// Texte de navigation dans la sidebar
+.nav-text {
+  font-weight: 500;
+  font-size: 14px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-10px);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap; // Empêche le texte de passer à la ligne
+
+  // Lorsque la sidebar est survolée, le texte apparaît
+  .quest-sidebar:hover & {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
+}
+
+// Indicateur de progression dans la sidebar
+.progress-indicator {
+  position: absolute;
+  left: 4px;
+  width: 2px;
+  background: var(--protrack-accent);
+  border-radius: 1px;
+  top: 16px; // Position initiale
+  height: 0px; // Hauteur initiale (sera modifiée par JS)
+  transition: height 0.6s ease; // Transition douce pour la hauteur
+}
+
+
+// --- Styles des Sections de la Page ---
+
+.homepage-container { // Conteneur global pour toutes les sections de la page d'accueil
+  width: 100%;
+}
+
+// Section Héro
+.hero-section {
+  min-height: 100vh; // Prend toute la hauteur de la vue
+  background: linear-gradient(135deg, var(--protrack-primary) 0%, var(--protrack-primary-light) 100%); // Utilisation du dégradé --gradient-primary
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center; // Centrer le contenu si besoin
+  overflow: hidden; // Pour l'animation des formes en fond
+  color: white; // Texte par défaut en blanc pour cette section
+  padding: 0 1rem; // Padding pour les petits écrans
+
+  // Formes animées en fond
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.05) 0%, transparent 40%), // Opacité réduite
+                radial-gradient(circle at 75% 75%, rgba(16,185,129,0.08) 0%, transparent 40%); // Opacité réduite pour l'accent
+    animation: float 20s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2; // Au-dessus des formes en fond
+  text-align: center; // Centrer le texte par défaut
+  max-width: 1200px; // Largeur maximale du contenu
+  margin: 0 auto; // Centrer le bloc de contenu
+  padding: 2rem 1rem; // Padding interne
+
+  @media (min-width: 768px) {
+    text-align: left; // Aligner à gauche sur les écrans plus larges
+    padding: 0 2rem;
+  }
+}
+
+.hero-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4rem); // Taille de police responsive
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.highlight { // Pour le texte en surbrillance dans le titre
+  color: var(--protrack-accent-light);
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem); // Taille de police responsive
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 3rem;
+  max-width: 600px; // Limiter la largeur du sous-titre
+  margin-left: auto; // Pour centrer si text-align: center
+  margin-right: auto; // Pour centrer si text-align: center
+
+  @media (min-width: 768px) {
+    margin-left: 0; // Aligner à gauche sur les écrans plus larges
+    margin-right: 0;
+  }
+}
+
+// Boutons CTA (Call To Action)
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap; // Permet aux boutons de passer à la ligne sur petits écrans
+  margin-bottom: 3rem;
+  justify-content: center; // Centrer les boutons
+
+  @media (min-width: 768px) {
+    justify-content: flex-start; // Aligner à gauche sur les écrans plus larges
+  }
+}
+
+// Style de base pour les boutons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; // Centrer le contenu du bouton
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif; // Assurer la bonne police
+
+  &.btn-primary {
+    background: linear-gradient(135deg, var(--protrack-accent) 0%, color-mix(in srgb, var(--protrack-accent) 80%, black) 100%); // Utilisation du dégradé --gradient-accent
+    color: white;
+    box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)); // Utilisation de la variable d'ombre
+
+    &:hover, &:focus {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1));
+    }
+  }
+
+  &.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+
+    &:hover, &:focus {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    // Flèche avant le texte (optionnel)
+    // &::before {
+    //   content: '→';
+    //   margin-right: 8px;
+    //   font-weight: bold;
+    // }
+  }
+  // Pour le bouton "Commencer gratuitement maintenant" qui est plus grand
+   &.btn-large {
+    font-size: 1.1rem;
+    padding: 20px 40px;
+  }
+}
+
+// Indicateurs de confiance
+.trust-indicators {
+  display: flex;
+  gap: 1.5rem; // Espace réduit
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center; // Centrer les indicateurs
+
+  @media (min-width: 768px) {
+    justify-content: flex-start; // Aligner à gauche sur les écrans plus larges
+    gap: 2rem;
+  }
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+
+  &::before { // Coche avant le texte
+    content: '✓';
+    margin-right: 8px;
+    color: var(--protrack-accent-light);
+    font-weight: bold;
+  }
+}
+
+// Sections standard (Impact, Solution, Features, Demo, CTA)
+.stats-section, .solution-section {
+  padding: 4rem 1rem; // Padding réduit pour mobile
+  text-align: center; // Centrer le texte par défaut
+
+  @media (min-width: 768px) {
+    padding: 6rem 2rem; // Padding standard pour desktop
+  }
+}
+
+.stats-section { // Section Impact et CTA Final
+  background: linear-gradient(135deg, var(--protrack-primary) 0%, var(--protrack-primary-light) 100%); // Utilisation du dégradé --gradient-primary
+  color: white;
+}
+
+.solution-section { // Section Solution, Features, Demo
+  background: var(--protrack-surface); // Fond blanc par défaut
+  color: var(--protrack-text-primary);
+
+  &.features-bg { // Classe spécifique pour la section Features
+    background: var(--protrack-surface-alt); // Fond gris clair
+  }
+}
+
+// Conteneur interne pour les sections
+.container {
+  max-width: 1200px;
+  margin: 0 auto; // Centrer le conteneur
+  padding: 0 1rem; // Padding interne pour éviter que le contenu ne colle aux bords
+
+   @media (min-width: 768px) {
+    padding: 0 2rem;
+  }
+
+  &.cta-container { // Pour la section CTA finale
+    position: relative;
+    z-index: 2;
+  }
+}
+
+// En-tête de section
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem; // Marge réduite
+
+  @media (min-width: 768px) {
+    margin-bottom: 4rem;
+  }
+}
+
+.section-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+
+  // Styles spécifiques pour les badges de chaque section
+  .stats-section & { // Badge dans les sections sombres
+    background: rgba(255, 255, 255, 0.1); // Opacité modifiée
+    color: white;
+  }
+  &.solution-badge { // Section Solution (fond clair)
+    background: rgba(var(--protrack-secondary-rgb, 59, 130, 246), 0.1);
+    color: var(--protrack-secondary);
+  }
+  &.features-badge { // Section Features (fond gris)
+    background: rgba(var(--protrack-accent-rgb, 16, 185, 129), 0.1);
+    color: var(--protrack-accent);
+  }
+  &.demo-badge { // Section Demo (fond clair)
+    background: rgba(var(--protrack-secondary-rgb, 59, 130, 246), 0.1);
+    color: var(--protrack-secondary);
+  }
+}
+// Définir --protrack-accent-rgb si ce n'est pas déjà fait
+:root {
+  // ... autres variables ...
+  --protrack-accent-rgb: 16, 185, 129; // RGB de #10B981
+}
+
+
+.section-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+
+  .solution-section & { // Titre dans les sections claires
+    color: var(--protrack-text-primary);
+  }
+  .stats-section & { // Titre dans les sections sombres
+    color: white;
+  }
+}
+
+.section-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  max-width: 600px;
+  margin: 0 auto 2rem; // Marge en bas réduite
+
+  .solution-section & { // Sous-titre dans les sections claires
+    color: var(--protrack-text-secondary);
+  }
+  .stats-section & { // Sous-titre dans les sections sombres
+    color: rgba(255, 255, 255, 0.8);
+  }
+    @media (min-width: 768px) {
+    margin-bottom: 3rem;
+  }
+}
+
+// Grille pour les statistiques
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); // minmax ajusté
+  gap: 1.5rem; // Espace réduit
+  max-width: 1000px;
+  margin: 0 auto;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 3rem;
+  }
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: clamp(2.5rem, 6vw, 3rem); // Taille responsive
+  font-weight: 700;
+  color: var(--protrack-accent-light);
+  display: block;
+  margin-bottom: 0.25rem; // Marge réduite
+}
+
+.stat-label {
+  font-size: clamp(0.9rem, 2vw, 1.1rem); // Taille responsive
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.5rem;
+}
+
+// Grille pour les cartes (features, solutions)
+.grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); // minmax ajusté
+}
+
+// Style des cartes
+.card {
+  background: var(--protrack-surface);
+  border-radius: 20px;
+  padding: 2rem; // Padding réduit
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1));
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden; // Pour l'effet de bordure au survol
+
+  // Bordure colorée au survol
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--protrack-accent) 0%, color-mix(in srgb, var(--protrack-accent) 80%, black) 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease; // Transition plus douce
+    transform-origin: left; // Animation depuis la gauche
+  }
+
+  &:hover, &:focus-within { // Ajout de :focus-within pour l'accessibilité
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1));
+    &::before {
+      transform: scaleX(1);
+    }
+  }
+   @media (min-width: 768px) {
+    padding: 2.5rem;
+  }
+}
+
+.card-icon {
+  width: 56px; // Taille réduite
+  height: 56px; // Taille réduite
+  background: linear-gradient(135deg, var(--protrack-accent) 0%, color-mix(in srgb, var(--protrack-accent) 80%, black) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(var(--protrack-accent-rgb,16,185,129), 0.3);
+  position: relative;
+  color: white; // Assurer que les icônes internes (si texte) sont blanches
+
+  // Recréation des icônes de carte (simplifié)
+  &.apps::after { content: '🗂️'; font-size: 24px; }
+  &.schedule::after { content: '📅'; font-size: 24px; }
+  &.visibility::after { content: '👁️'; font-size: 24px; }
+  &.dashboard-custom::after { content: '📊'; font-size: 24px; }
+  &.notifications::after { content: '🔔'; font-size: 24px; }
+  &.analytics::after { content: '📈'; font-size: 24px; }
+  &.network::after { content: '🔗'; font-size: 24px; }
+
+   @media (min-width: 768px) {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+.card-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.4rem; // Taille ajustée
+  font-weight: 600;
+  color: var(--protrack-text-primary);
+  margin-bottom: 0.75rem; // Marge réduite
+}
+
+.card-text {
+  color: var(--protrack-text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem; // Taille ajustée
+}
+
+// Section Demo (Aperçu)
+.demo-container { // Conteneur de la démo
+  background: var(--protrack-surface-alt);
+  border-radius: 20px;
+  padding: 2rem 1rem; // Padding ajusté
+  text-align: center;
+  margin: 2rem 0; // Marge ajustée
+
+  @media (min-width: 768px) {
+    padding: 3rem;
+    margin: 3rem 0;
+  }
+}
+
+.demo-preview { // Bloc de prévisualisation
+  background: var(--protrack-surface);
+  border-radius: 16px;
+  padding: 1.5rem; // Padding ajusté
+  margin: 1rem auto; // Marge ajustée
+  max-width: 600px;
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1));
+  border: 1px solid rgba(0, 0, 0, 0.1);
+
+  @media (min-width: 768px) {
+    padding: 2rem;
+    margin: 2rem auto;
+  }
+}
+
+.demo-content { text-align: left; }
+.demo-title {
+  color: var(--protrack-text-primary);
+  margin-bottom: 1rem;
+  font-weight: 600;
+  font-size: 1.1rem; // Taille ajustée
+  font-family: 'Poppins', sans-serif;
+}
+
+.demo-stats {
+  display: flex;
+  flex-direction: column; // Empiler sur mobile
+  gap: 0.75rem; // Espace réduit
+  margin-bottom: 1rem;
+
+  @media (min-width: 500px) { // Passer en ligne sur écrans plus larges
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+.demo-stat {
+  flex: 1;
+  background: var(--protrack-surface-alt);
+  padding: 0.75rem; // Padding réduit
+  border-radius: 8px;
+  text-align: center;
+
+  .demo-stat-number {
+    font-weight: 600;
+    font-size: 1.5rem;
+    display: block; // Assurer qu'il prend sa propre ligne
+    margin-bottom: 0.25rem;
+    &.accent { color: var(--protrack-accent); }
+    &.secondary { color: var(--protrack-secondary); }
+    &.warning { color: var(--protrack-warning); }
+  }
+  .demo-stat-label {
+    color: var(--protrack-text-secondary);
+    font-size: 0.8rem; // Taille réduite
+  }
+  @media (min-width: 768px) {
+     padding: 1rem;
+    .demo-stat-label { font-size: 0.9rem; }
+  }
+}
+
+.demo-actions {
+  background: var(--protrack-surface-alt);
+  padding: 1rem;
+  border-radius: 8px;
+  .demo-actions-title {
+    font-size: 0.9rem; color: var(--protrack-text-secondary);
+    margin-bottom: 0.5rem; font-weight: 500;
+  }
+  .demo-action {
+    font-size: 0.9rem; margin-bottom: 0.3rem;
+    color: var(--protrack-text-primary);
+    &:last-child { margin-bottom: 0; }
+  }
+}
+
+.demo-note {
+  color: var(--protrack-text-secondary);
+  margin-top: 1.5rem; // Marge ajustée
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+// Section CTA Final
+.cta-main { margin-bottom: 3rem; } // Pour le bouton principal
+
+.benefits-grid { // Grille pour les bénéfices (Prêt en 2 minutes, etc.)
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem; // Espace réduit
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+
+  @media (min-width: 768px) {
+    gap: 3rem;
+  }
+}
+
+.benefit-item {
+  text-align: center;
+  color: rgba(255,255,255,0.8);
+  .benefit-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .benefit-text { font-size: 0.9rem; }
+}
+
+.social-share { // Conteneur pour le partage social
+  text-align: center;
+  margin-top: 2rem;
+  .share-text {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.social-buttons { // Conteneur pour les boutons de partage
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem; // Espace réduit
+  flex-wrap: wrap;
+
+  @media (min-width: 768px) {
+    gap: 1rem;
+  }
+}
+
+// Boutons de partage sur les réseaux sociaux
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px; // Padding ajusté
+  border-radius: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: 0.9rem; // Taille ajustée
+  min-width: auto; // Permettre aux boutons d'être plus petits
+
+  &:hover, &:focus {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  }
+
+  .social-icon { // Icône dans le bouton de partage
+    width: 20px; // Taille réduite
+    height: 20px; // Taille réduite
+    margin-right: 8px; // Espace réduit
+    position: relative;
+    flex-shrink: 0;
+
+    // Simplification pour l'exemple :
+    &.facebook { background: #1877F2; border-radius: 4px; }
+    &.linkedin { background: #0A66C2; border-radius: 4px; }
+    &.twitter  { background: #000000; border-radius: 4px; &::after { content: '𝕏'; font-size: 12px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white;}}
+    &.instagram{ background: linear-gradient(135deg, #FD5949, #D6249F, #285AEB); border-radius: 6px;}
+    &.tiktok   { background: linear-gradient(135deg, #000000, #ff0050); border-radius: 4px; &::after { content: '♪'; font-size: 14px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white;}}
+    &.youtube  { background: #FF0000; border-radius: 4px; }
+    &.whatsapp { background: #25D366; border-radius: 6px; }
+    &.email    { background: #EA4335; border-radius: 4px; &::after { content: '@'; font-family: Arial, sans-serif; font-size: 12px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white;}}
+  }
+  // Cacher le texte sur très petits écrans si besoin
+  @media (max-width: 400px) {
+    span:not(.social-icon) { // Cible le texte à côté de l'icône
+      display: none;
+    }
+    .social-icon {
+      margin-right: 0;
+    }
+    padding: 10px; // Padding pour les boutons icône seule
+  }
+}
+
+
+// Footer
+.footer {
+  background: var(--protrack-text-primary); // Fond sombre pour le footer
+  color: rgba(255, 255, 255, 0.7); // Texte plus clair
+  padding: 2rem 1rem; // Padding ajusté
+  text-align: center;
+  font-size: 0.9rem;
+
+  .footer-content { margin-bottom: 1rem; }
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem; // Espace réduit
+    flex-wrap: wrap;
+    a {
+      color: var(--protrack-accent-light); // Liens avec la couleur accent
+      text-decoration: none;
+      &:hover, &:focus {
+        text-decoration: underline;
+        color: white;
+      }
+    }
+  }
+   @media (min-width: 768px) {
+    padding: 3rem 2rem; // Padding standard pour desktop
+    .footer-links { gap: 2rem; }
+  }
+}
+
+
+// Ajustements responsives généraux pour la page d'accueil
+@media (max-width: 768px) {
+  .quest-sidebar {
+    display: none; // Cacher la sidebar sur mobile (ou la transformer en menu burger)
+  }
+
+  .cta-buttons {
+    flex-direction: column; // Boutons CTA en colonne sur mobile
+    align-items: stretch; // Boutons pleine largeur
+    .btn { width: 100%; } // Assurer que les boutons prennent toute la largeur
+  }
+
+  .trust-indicators {
+    justify-content: center; // Centrer les indicateurs sur mobile
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); // Ajuster pour mobile
+    gap: 1rem;
+  }
+  .demo-stats {
+    flex-direction: column;
+  }
+  .benefits-grid { gap: 2rem; }
+  .social-buttons { gap: 0.5rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-content, .container {
+    padding: 0 1rem; // Padding réduit pour très petits écrans
+  }
+  .stats-grid {
+    grid-template-columns: 1fr; // Une seule colonne pour les stats
+  }
+   .section-title { font-size: 1.8rem; }
+   .section-subtitle { font-size: 0.95rem; }
+   .card-title { font-size: 1.2rem; }
+   .card-text { font-size: 0.9rem; }
+}
+

@@ -190,9 +190,9 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   // TrackBy function pour optimiser les performances de la liste
-  trackByCandidature(index: number, candidature: Candidature): number {
-    return candidature.id;
-  }
+  trackByCandidature = (index: number, candidature: Candidature): number => {
+    return candidature?.id || index;
+  };
 
   // TrackBy function pour les statistiques
   trackByStatItem(index: number, item: TopStatItem): string {
