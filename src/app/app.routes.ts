@@ -1,7 +1,7 @@
 // src/app/app.routes.ts - MISE À JOUR AVEC KANBAN
 import { Routes } from '@angular/router';
 import { CandidatureListComponent } from './components/candidature-list/candidature-list.component';
-import { KanbanBoardComponent } from './components/kanban-board/kanban-board.component';
+import { KanbanBoardEnhancedComponent } from './components/kanban-board/kanban-bord-enhanced.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { RegisterComponent } from './components/auth/register/register.component';
@@ -23,7 +23,7 @@ export const routes: Routes = [
   },
   {
     path: 'kanban',
-    component: KanbanBoardComponent,
+    component: KanbanBoardEnhancedComponent,
     canActivate: [authGuard],
     title: 'Kanban Board - ProTrack CV'
   },

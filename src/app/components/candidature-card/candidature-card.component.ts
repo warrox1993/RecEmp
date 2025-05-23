@@ -1,5 +1,5 @@
-// src/app/components/candidature-card/candidature-card.component.ts
-import { Component, Input, Output, EventEmitter, computed, signal } from '@angular/core';
+// src/app/components/candidature-card/candidature-card.component.ts - CORRIGÉ
+import { Component, Input, Output, EventEmitter, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDividerModule } from '@angular/material/divider'; // AJOUTÉ
 import { Candidature } from '../../models/candidature.model';
 import { QuickAction } from '../../models/kanban.model';
 
@@ -22,7 +23,8 @@ import { QuickAction } from '../../models/kanban.model';
     MatTooltipModule,
     MatMenuModule,
     MatChipsModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatDividerModule // AJOUTÉ
   ],
   template: `
     <mat-card class="candidature-card" [class.urgent]="isUrgent()" [class.overdue]="isOverdue()">
@@ -127,7 +129,7 @@ import { QuickAction } from '../../models/kanban.model';
       </div>
 
       <!-- Overlay pour feedback visuel pendant le drag -->
-      <div class="drag-overlay" [class.dragging]="isDragging()"></div>
+      <div class="drag-overlay" [class.dragging]="isDragging"></div>
     </mat-card>
   `,
   styleUrls: ['./candidature-card.component.scss']
@@ -135,7 +137,7 @@ import { QuickAction } from '../../models/kanban.model';
 export class CandidatureCardComponent {
   @Input({ required: true }) candidature!: Candidature;
   @Input() quickActions: QuickAction[] = [];
-  @Input() isDragging = signal(false);
+  @Input() isDragging: boolean = false; // CORRIGÉ : Simple Input boolean
 
   @Output() edit = new EventEmitter<Candidature>();
   @Output() viewDetails = new EventEmitter<Candidature>();

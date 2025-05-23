@@ -1,4 +1,4 @@
-/* src/app/app.component.scss - MISE À JOUR AVEC STYLES KANBAN */
+/* src/app/app.component.scss - MISE À JOUR AVEC STYLES KANBAN - CORRIGÉ */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -99,8 +99,18 @@
   }
 }
 
+// CORRIGÉ: Suppression de la règle vide .notifications-button
+// Style pour les notifications avec contenu
 .notifications-button {
-  /* Pas de règles vides ici, donc l'erreur Ln 41 devrait disparaître si c'était celle-ci */
+  position: relative;
+
+  .mat-icon {
+    transition: color 0.2s ease;
+  }
+
+  &:hover .mat-icon {
+    color: var(--mdc-theme-accent, #ff4081);
+  }
 }
 
 .notifications-panel {
