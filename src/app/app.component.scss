@@ -1,500 +1,295 @@
-/* src/app/app.component.scss */
-/* Styles pour le composant principal de l'application, alignés sur le design de home.scss */
-
-// Utilisation des variables globales définies dans styles.scss (ex: --protrack-primary, --protrack-accent, etc.)
-
-/* Conteneur global de l'application */
-/* La classe .app-container est appliquée conditionnellement via [class.app-container]="!isHomePage" dans app.component.html */
-/* Ces styles s'appliqueront donc uniquement lorsque ce n'est PAS la page d'accueil. */
+/* src/app/app.component.scss - MISE À JOUR AVEC STYLES KANBAN */
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--protrack-surface-alt); // Fond général des pages intérieures
 }
 
-/* Styles pour la barre d'outils principale (header) */
-.app-header.mat-toolbar {
-  background: var(--protrack-primary); // Couleur de fond principale de ProTrack CV
-  color: white; // Texte blanc sur fond sombre
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  position: sticky; // Reste en haut lors du défilement
+.app-header {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
   top: 0;
-  z-index: 1000; // Au-dessus des autres contenus
-  width: 100%;
-  box-sizing: border-box;
-  overflow: hidden; // Empêche le débordement
-  flex-wrap: nowrap;
-  box-shadow: var(--shadow-lg); // Ombre subtile définie dans ProTrack CV
-  min-height: 64px;
-  max-height: 64px;
+  z-index: 1000;
+  display: flex;
+  padding: 0 16px;
 
-  // Assurer que les boutons Material héritent de la couleur de texte de la toolbar
-  .mat-mdc-button-base { // Cible plus générale pour les boutons Material
-    color: inherit;
+  // Nouveau: Support pour le menu déroulant candidatures
+  .candidatures-menu-btn {
+    display: flex;
+    align-items: center;
+
+    .dropdown-icon {
+      margin-left: 4px;
+      font-size: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    &[aria-expanded="true"] .dropdown-icon {
+      transform: rotate(180deg);
+    }
   }
 }
 
-/* Titre de l'application */
 .app-title {
-  font-family: 'Poppins', sans-serif; // Police des titres
-  font-size: 1.35em; // Taille légèrement augmentée
-  font-weight: 600; // Poids de police pour le titre
+  font-size: 1.25em;
+  font-weight: 500;
   cursor: pointer;
   text-decoration: none;
-  color: white; // Assurer que le titre est blanc
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin-right: 24px;
-
-  &:hover, &:focus {
+  color: inherit;
+  &:hover {
     opacity: 0.9;
-    color: var(--protrack-accent-light); // Effet de survol avec l'accent clair
   }
 }
 
-/* Espaceur flexible */
 .spacer {
-  flex-grow: 1;
-  min-width: 8px;
+  flex: 1 1 auto;
 }
 
-/* Conteneur pour le contenu à droite du header */
-.header-right-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 1;
-  min-width: 0;
-  overflow: hidden;
+.app-header a[mat-button], .app-header button[mat-button], .app-header button[mat-icon-button] {
+  margin-left: 8px;
 }
 
-/* Groupe des liens de navigation principaux */
-.nav-links-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 1;
-  min-width: 0;
-
-  a[mat-button] { // Style des liens de navigation
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.8); // Couleur des liens inactifs (comme sidebar)
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    flex-shrink: 1;
-    min-width: 0;
-    padding: 0 10px; // Padding ajusté
-    margin: 0;
-    height: 40px; // Hauteur ajustée
-    line-height: 40px;
-    border-radius: 8px; // Arrondi plus doux
-    transition: background-color 0.3s ease, color 0.3s ease;
-
-    mat-icon {
-      margin-right: 6px; // Espace entre icône et texte
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-      vertical-align: middle; // Mieux aligner l'icône
-    }
-
-    span {
-      font-size: 0.9em;
-      vertical-align: middle;
-    }
-
-    &:hover, &:focus, &.active-link { // .active-link doit être géré par [routerLinkActive]
-      background-color: rgba(var(--protrack-accent-rgb, 16, 185, 129), 0.15); // Fond au survol (comme sidebar)
-      color: var(--protrack-accent-light); // Texte en couleur accent clair
-    }
-  }
-}
-
-/* Séparateur vertical */
-.header-divider {
-  margin: 0 8px; // Marge ajustée
-  border-right-color: rgba(255, 255, 255, 0.2); // Couleur du séparateur
-}
-
-/* Groupe des actions utilisateur (notifications, menu profil, connexion/inscription) */
-.user-actions-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-
-  & > a[mat-button], // Liens directs (Connexion/Inscription)
-  & > button[mat-icon-button] {
-    flex-shrink: 0;
-    margin: 0;
-    color: rgba(255, 255, 255, 0.8); // Couleur par défaut
-    border-radius: 8px;
-
-    &:hover, &:focus {
-      color: white; // Couleur au survol/focus
-      background-color: rgba(255, 255, 255, 0.1); // Léger fond au survol
-    }
-  }
-
-  & > a[mat-button] { // Style spécifique pour Connexion/Inscription
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    padding: 0 12px;
-    height: 40px;
-    line-height: 40px;
-    mat-icon {
-      margin-right: 6px;
-      font-size: 20px;
-      vertical-align: middle;
-    }
-    span {
-      vertical-align: middle;
-    }
-  }
-
-  // Pour les boutons icônes (notifications, profil)
-  button[mat-icon-button] {
-    .mat-icon { // Cible l'icône à l'intérieur du bouton icône Material
-       color: rgba(255, 255, 255, 0.8);
-    }
-     &:hover .mat-icon, &:focus .mat-icon {
-       color: white;
-    }
-
-    // Style spécifique pour le badge de notification
-    &.notifications-button .mat-badge-content {
-      background-color: var(--protrack-warning); // Couleur du badge
-      color: var(--protrack-text-primary); // Texte du badge
-      font-weight: 600;
-    }
-  }
-}
-
-/* Affichage du nom de l'utilisateur */
-.user-name-display {
-  display: none; // Caché par défaut, s'affiche sur écrans plus larges
-  margin-left: 4px;
+.app-header a[mat-button] mat-icon, .app-header button[mat-button] mat-icon {
   margin-right: 4px;
-  font-size: 0.9em;
-  font-family: 'Inter', sans-serif;
-  color: rgba(255, 255, 255, 0.85);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 80px;
+  vertical-align: middle;
+}
 
-  @media (min-width: 1024px) { // Afficher sur écrans larges
-    display: inline-block; // Ou flex si besoin d'alignement interne
+// Nouveau: Badge pour les rappels
+.reminder-badge {
+  background-color: #ff4081;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 0.7em;
+  font-weight: bold;
+  margin-left: 4px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+// Nouveau: Menu sous candidatures
+.candidatures-submenu {
+  min-width: 200px !important;
+
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+
+    .mat-icon {
+      margin-right: 12px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    span {
+      flex: 1;
+    }
+  }
+
+  .new-feature-chip {
+    background-color: #4caf50 !important;
+    color: white !important;
+    font-size: 0.6em !important;
+    height: 20px !important;
+    font-weight: 600 !important;
+    margin-left: 8px;
+    animation: pulse 2s infinite;
   }
 }
 
-/* Styles pour le panneau des notifications et menu utilisateur */
-.notifications-panel, .mat-mdc-menu-panel { // Cible aussi le panneau de menu utilisateur générique
-  max-width: 380px; // Largeur augmentée
-  min-width: 320px;
-  border-radius: 16px !important; // Arrondi de ProTrack CV
-  background-color: var(--protrack-surface) !important; // Fond des panneaux
-  box-shadow: var(--shadow-xl) !important; // Ombre plus prononcée pour les popups
+.notifications-button {
+  /* Pas de règles vides ici, donc l'erreur Ln 41 devrait disparaître si c'était celle-ci */
+}
 
-  .notifications-header, .mat-mdc-menu-item { // Style commun pour header de notifs et items de menu
-    font-family: 'Inter', sans-serif;
+.notifications-panel {
+  max-width: 360px !important;
+  min-width: 320px !important;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  h3 {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 500;
   }
-
-  .notifications-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px; // Padding ajusté
-    border-bottom: 1px solid var(--protrack-surface-alt); // Séparateur subtil
-
-    h3 {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.1em;
-      font-weight: 600; // Poids de police pour le titre du panneau
-      color: var(--protrack-text-primary);
-    }
-    .mark-all-read-button { // Bouton "Tout marquer comme lu"
-      font-size: 0.8em;
-      line-height: 28px;
-      min-width: auto;
-      padding: 0 10px;
-      color: var(--protrack-secondary); // Couleur du bouton
-      border-color: var(--protrack-secondary); // Bordure
-      border-radius: 8px;
-      &:hover {
-        background-color: rgba(var(--protrack-secondary-rgb), 0.08);
-      }
-    }
+  .mark-all-read-button {
+    font-size: 0.8em;
+    line-height: 28px;
+    min-width: auto;
+    padding: 0 8px;
   }
 }
 
 .notifications-list-container {
   max-height: 400px;
   overflow-y: auto;
-  padding: 8px 0; // Léger padding vertical
 }
 
-.notification-item, .mat-mdc-menu-item { // Style commun pour items de notifs et items de menu
+.notification-item {
   cursor: pointer;
-  border-left: 4px solid transparent; // Pour marquer les non-lus
-  color: var(--protrack-text-secondary); // Couleur de texte par défaut
-  padding: 10px 16px !important; // Padding pour les items Material
+  border-left: 4px solid transparent;
 
-  &:hover, &:focus, &.mdc-list-item--selected { // Survol, focus, sélectionné
-    background-color: var(--protrack-surface-alt) !important; // Fond au survol
-    color: var(--protrack-text-primary) !important;
+  &.unread {
+    border-left-color: var(--mdc-theme-primary, #3f51b5);
+    background-color: rgba(63, 81, 181, 0.05);
   }
 
-  &.unread { // Notification non lue
-    border-left-color: var(--protrack-accent); // Marqueur de couleur accent
-    background-color: color-mix(in srgb, var(--protrack-surface-alt) 50%, var(--protrack-accent) 5%) !important; // Fond légèrement teinté
-    .notification-title, .mat-mdc-list-item-title { // Titre en gras pour non-lu
-      font-weight: 600;
-      color: var(--protrack-text-primary);
-    }
+  &:hover {
+    background-color: rgba(0,0,0,0.04);
   }
 
-  .mat-icon, .mat-mdc-list-item-icon { // Icônes dans les listes
+  .mat-mdc-list-item-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;
-    margin-right: 16px; // Espace augmenté
-    color: var(--protrack-text-secondary); // Couleur par défaut de l'icône
-
-    // Couleurs spécifiques pour les types de notification
-    &.rappel { color: var(--protrack-secondary); }
-    &.info { color: var(--protrack-text-secondary); } // Gris pour info
-    &.succes { color: var(--protrack-accent); }
-    &.erreur { color: var(--color-error); }
+    margin-right: 12px;
+    &.rappel { color: var(--mdc-theme-primary, #3f51b5); }
+    &.info { color: var(--mat-blue-grey-400, #78909c); }
+    &.succes { color: var(--mat-green-600, #43a047); }
+    &.erreur { color: var(--mat-red-600, #e53935); }
   }
-  // Pour les items de menu Material
-   .mat-mdc-menu-item-text .mat-icon {
-      margin-right: 12px;
-      color: var(--protrack-text-secondary); // Couleur des icônes de menu
-   }
-   &:hover .mat-mdc-menu-item-text .mat-icon, &:focus .mat-mdc-menu-item-text .mat-icon {
-      color: var(--protrack-secondary); // Couleur au survol pour icônes de menu
-   }
 
-
-  .notification-title, .mat-mdc-list-item-title {
+  .notification-title {
     font-weight: 500;
     font-size: 0.95em;
-    color: var(--protrack-text-primary); // Couleur du titre
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  .notification-message, .mat-mdc-list-item-line {
+  .notification-message {
     font-size: 0.85em;
-    color: var(--protrack-text-secondary); // Couleur du message
+    color: #555;
     white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    padding-top: 2px; // Petit espace
   }
-
-  .notification-date, .mat-mdc-list-item-meta {
+  .notification-date {
     font-size: 0.75em;
-    color: var(--protrack-text-secondary); // Couleur de la date/meta
-    opacity: 0.8;
+    color: #888;
   }
 }
-// Style pour le lien "Voir toutes les notifications"
-.view-all-notifications {
-  text-align: center;
-  color: var(--protrack-secondary) !important;
-  font-weight: 500;
-  .mat-icon {
-    color: var(--protrack-secondary) !important;
-  }
-  &:hover {
-    background-color: rgba(var(--protrack-secondary-rgb), 0.08) !important;
-  }
-}
-
 
 .no-notifications-message {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px; // Padding augmenté
-  color: var(--protrack-text-secondary);
-  text-align: center;
-
+  padding: 20px;
+  color: #777;
   mat-icon {
-    font-size: 40px; // Icône plus grande
-    width: 40px;
-    height: 40px;
-    margin-bottom: 12px;
-    opacity: 0.7;
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 8px;
   }
   p {
     margin: 0;
-    font-size: 0.95em; // Taille de texte ajustée
-    font-family: 'Inter', sans-serif;
+    font-size: 0.9em;
   }
 }
 
-/* Contenu principal de l'application (lorsque ce n'est PAS la page d'accueil) */
-/* La classe .app-content est appliquée conditionnellement via [class.app-content]="!isHomePage" */
 .app-content {
   flex-grow: 1;
-  padding: 24px; // Padding standard pour le contenu
-  // background-color: var(--protrack-surface-alt); // Déjà défini sur .app-container
-  // Si .app-container n'a pas de fond, décommentez la ligne ci-dessus.
+  padding: 20px;
+  background-color: #f9f9f9;
 }
 
-/* Footer de l'application (lorsque ce n'est PAS la page d'accueil) */
-/* La classe .app-footer est appliquée conditionnellement via [class.app-footer]="!isHomePage" */
 .app-footer {
-  padding: 2rem 1rem; // Padding du footer de home.scss
-  background-color: var(--protrack-text-primary); // Fond sombre (comme home.scss)
-  color: rgba(255, 255, 255, 0.7); // Texte clair (comme home.scss)
+  padding: 20px;
+  background-color: #333;
+  color: #ccc;
   text-align: center;
   flex-shrink: 0;
-  font-size: 0.9em; // Taille de police du footer de home.scss
-  font-family: 'Inter', sans-serif;
+  font-size: 0.85em;
+}
 
-  p {
-    margin: 0 0 10px 0;
-    &:last-child {
-      margin-bottom: 0;
-    }
+.app-footer p {
+  margin: 0 0 10px 0;
+}
+
+// Nouveau: User name display
+.user-name-display {
+  font-size: 0.9em;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+// Animation pour le badge "NEW"
+@keyframes pulse {
+  0% {
+    transform: scale(1);
   }
-  // Si vous avez des liens dans le footer, stylez-les comme dans home.scss
-  nav a {
-    color: var(--protrack-accent-light);
-    text-decoration: none;
-    margin: 0 10px;
-    transition: color 0.3s ease;
-    &:hover, &:focus {
-      color: white;
-      text-decoration: underline;
-    }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
-/* Media Queries pour la réactivité (conservées et adaptées si besoin) */
-@media (max-width: 1024px) {
-  /* .user-name-display est géré par une media query spécifique plus bas */
-  .nav-links-group a[mat-button] span {
-    font-size: 0.8em !important;
-  }
-}
+// Responsive pour mobile
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 8px;
 
-@media (max-width: 900px) {
-  .app-header.mat-toolbar {
-    padding: 0 12px !important;
-  }
-  .app-title {
-    font-size: 1.2em !important; // Taille ajustée
-    margin-right: 12px !important;
-  }
-  .nav-links-group {
-    gap: 2px !important;
-    a[mat-button] {
-      padding: 0 6px !important;
-      height: 38px !important; // Hauteur ajustée
-      line-height: 38px !important;
-      mat-icon {
-        font-size: 18px !important;
-        margin-right: 2px !important;
-      }
-      span {
-        font-size: 0.85em !important;
-      }
+    .app-title {
+      font-size: 1.1em;
     }
-  }
-  .header-right-content .header-divider {
-    margin: 0 4px !important;
-  }
-}
 
-@media (max-width: 768px) { // Petites tablettes et téléphones en mode paysage
-  .app-header.mat-toolbar {
-    padding: 0 8px !important;
-  }
-  .app-title {
-    font-size: 1.1rem !important; // Taille ajustée
-    margin-right: 8px !important;
-  }
-  .nav-links-group {
-    a[mat-button] {
-      padding: 0 4px !important;
-      min-width: 36px !important; // Taille minimale pour les icônes
-      height: 36px !important;
-      line-height: 36px !important;
-      span {
-        display: none !important; // Cache le texte, garde les icônes
+    .candidatures-menu-btn,
+    .app-header a[mat-button],
+    .app-header button[mat-button] {
+      padding: 0 8px;
+      margin-left: 4px;
+      min-width: auto;
+
+      span:not(.user-name-display):not(.reminder-badge) {
+        display: none; // Cacher le texte, garder seulement les icônes
       }
-      mat-icon {
-        margin-right: 0 !important;
-        font-size: 20px !important;
-      }
-    }
-  }
-  .user-actions-group {
-    gap: 2px !important;
-     & > a[mat-button] span { // Cache aussi le texte des boutons Connexion/Inscription
-        display: none;
-     }
-     & > a[mat-button] mat-icon {
+
+      .mat-icon {
         margin-right: 0;
-     }
+      }
+    }
+
+    .user-name-display {
+      display: none; // Cacher le nom utilisateur sur mobile
+    }
+
+    .reminder-badge {
+      position: absolute;
+      top: 8px;
+      right: 4px;
+      transform: scale(0.8);
+    }
   }
 
-  .header-right-content .header-divider {
-    display: none !important;
-  }
-  .app-content {
-    padding: 16px; // Padding réduit pour le contenu sur mobile
-  }
-  .app-footer {
-    padding: 1.5rem 1rem; // Padding du footer réduit
-    font-size: 0.85em;
+  .candidatures-submenu {
+    min-width: 180px !important;
   }
 }
 
-@media (max-width: 600px) { // Téléphones en mode portrait
-  .app-header.mat-toolbar {
-    padding: 0 4px !important;
-    min-height: 56px !important;
-    max-height: 56px !important;
-  }
-  .app-title {
-    font-size: 1rem !important; // Taille ajustée
-    margin-right: 4px !important;
-  }
-  .nav-links-group a[mat-button],
-  .user-actions-group > a[mat-button] { // Appliquer aux boutons Connexion/Inscription aussi
-    padding: 0 8px !important; // Un peu plus de padding pour le clic
-    min-width: 36px !important; // Assurer la taille minimale
-  }
-  .spacer {
-    min-width: 4px !important;
+// Assure la compatibilité avec Angular Material
+::ng-deep {
+  .mat-mdc-menu-panel.candidatures-submenu {
+    margin-top: 8px;
+
+    .mat-mdc-menu-content {
+      padding: 8px 0;
+    }
   }
 }
 
-@media (max-width: 480px) { // Très petits écrans
-  // Cache certains liens de navigation si l'espace est très limité
-  // .nav-links-group a[mat-button]:nth-child(n+3) { // Cache à partir du 3ème lien (si nécessaire)
-  //   display: none !important;
-  // }
-  .app-title {
-    font-size: 0.95rem !important; // Taille ajustée
-  }
-   .user-actions-group > a[mat-button] { // Pour Connexion/Inscription
-    padding: 0 6px !important; // Réduire encore le padding si besoin
-  }
+// Style pour le dropdown icon des menus
+.dropdown-icon {
+  transition: transform 0.2s ease-in-out;
 }
-
