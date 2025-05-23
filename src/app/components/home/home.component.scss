@@ -1,0 +1,322 @@
+// src/app/components/home/home.component.scss
+
+// Variables de couleurs "Quête Sobre"
+$hero-bg-color: #2C3E50;
+$hero-text-color: #F0F0F0;
+$light-section-bg: #F8F9FA;
+$light-section-text-color: #343A40;
+$primary-accent-color: #B08D57;    // Or Mat
+$secondary-accent-color-1: #34568B; // Bleu Saphir
+$secondary-accent-color-2: #00695C; // Vert Émeraude
+$warning-color: #ffc107;
+$danger-color: #f44336;
+$info-color: #2196f3;
+
+$font-family-titles: 'Merriweather', serif;
+$font-family-text: 'Lato', sans-serif;
+
+$sidebar-width: 60px;
+$sidebar-width-hover: 200px; // Augmenté pour plus de texte
+$sidebar-icon-size: 24px;
+
+@mixin section-padding($padding-y: 4rem) {
+  padding-top: $padding-y;
+  padding-bottom: $padding-y;
+}
+
+// --- Styles de la Sidebar "Carte de la Quête" ---
+.quest-sidebar {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  background-color: rgba(darken($hero-bg-color, 5%), 0.9);
+  backdrop-filter: blur(8px);
+  border-radius: 0 12px 12px 0;
+  padding: 15px 0;
+  width: $sidebar-width;
+  z-index: 1001;
+  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); // Transition plus douce
+  box-shadow: 3px 0px 15px rgba(0,0,0,0.25);
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      a {
+        display: flex;
+        align-items: center;
+        padding: 12px 18px;
+        color: rgba($hero-text-color, 0.75);
+        text-decoration: none;
+        transition: background-color 0.25s ease, color 0.25s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        cursor: pointer; // Indiquer que c'est cliquable
+
+        .mat-icon {
+          font-size: $sidebar-icon-size;
+          height: $sidebar-icon-size;
+          width: $sidebar-icon-size;
+          margin-right: 0;
+          transition: margin-right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+          flex-shrink: 0; // Empêcher l'icône de rétrécir
+        }
+
+        .nav-text {
+          opacity: 0;
+          visibility: hidden;
+          margin-left: 15px;
+          font-size: 0.9rem;
+          font-weight: 500; // Un peu plus de poids pour la lisibilité
+          transition: opacity 0.2s ease-in-out 0.1s, visibility 0.2s ease-in-out 0.1s;
+        }
+
+        &:hover, &:focus { // Ajouter :focus pour l'accessibilité
+          background-color: rgba($primary-accent-color, 0.25);
+          color: $primary-accent-color;
+        }
+
+        &.active {
+          background-color: $primary-accent-color;
+          color: $hero-bg-color;
+          font-weight: bold; // Rendre le texte actif plus visible
+
+          .mat-icon {
+             color: $hero-bg-color; // Assurer la visibilité de l'icône
+          }
+        }
+      }
+    }
+  }
+
+  &:hover {
+    width: $sidebar-width-hover;
+    ul li a {
+      .mat-icon { margin-right: 12px; }
+      .nav-text { opacity: 1; visibility: visible; }
+    }
+  }
+}
+
+
+.homepage-container {
+  font-family: $font-family-text;
+  color: $light-section-text-color;
+  line-height: 1.6;
+  // Ajuster le padding si la sidebar est toujours visible et ne se superpose pas
+  // Si la sidebar est toujours de $sidebar-width, ajouter ce padding :
+  // padding-left: $sidebar-width + 20px;
+
+  .section-title { /* ... */ }
+  .lead { /* ... */ }
+  .my-4, .mt-3, .mb-4, .mb-5, .py-4, .mx-2 { /* ... */ } // Utilitaires
+  .section-padding { @include section-padding(); }
+  .section-padding-tease { @include section-padding(2.5rem); }
+  .text-center { text-align: center; }
+  .alternate-bg { background-color: $light-section-bg; }
+
+  .mat-icon {
+    &.icon-small { /* ... */ }
+    &.large-icon { /* ... */ }
+    &.extra-large-icon { /* ... */ }
+    &.inline-icon { vertical-align: bottom; font-size: 1.2em; }
+  }
+
+  .color-primary-accent { color: $primary-accent-color; }
+  .color-secondary-accent-1 { color: $secondary-accent-color-1; }
+  .color-secondary-accent-2 { color: $secondary-accent-color-2; }
+  .color-warning { color: $warning-color; }
+  .color-danger { color: $danger-color; }
+  .color-info { color: $info-color; }
+
+  .hero-section {
+    /* ... (styles existants) ... */
+    .scroll-incentive {
+      /* ... (styles existants) ... */
+      .mat-icon { animation: bounceArrow 2s infinite; }
+    }
+  }
+
+  // --- Section Oracle des Opportunités ---
+  .oracle-section {
+    .oracle-icon-placeholder .mat-icon {
+      // Style spécifique pour l'icône de l'oracle si besoin
+      color: $secondary-accent-color-1; // Bleu Saphir
+    }
+    .oracle-challenges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+      .challenge-button {
+        border-color: rgba($primary-accent-color, 0.7);
+        color: $primary-accent-color;
+        .mat-icon { margin-right: 0.5rem; }
+        &:hover {
+          background-color: rgba($primary-accent-color, 0.1);
+          border-color: $primary-accent-color;
+        }
+      }
+    }
+    .revelation-area {
+      min-height: 100px; // Pour éviter les sauts de page
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background-color: rgba($hero-bg-color, 0.05); // Fond très subtil
+      border-radius: 8px;
+      border: 1px solid rgba($primary-accent-color, 0.2);
+      .revelation-content {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        &.revealed { // Classe à ajouter via TS pour l'animation
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .revelation-icon {
+          font-size: 2rem;
+          color: $primary-accent-color; // Or
+          margin-bottom: 0.5rem;
+        }
+        h3 {
+          font-family: $font-family-titles;
+          color: $secondary-accent-color-1; // Bleu Saphir
+          margin-bottom: 0.5rem;
+        }
+        p { font-style: italic; }
+      }
+      .revelation-placeholder p {
+        color: lighten($light-section-text-color, 30%);
+        font-style: italic;
+      }
+    }
+  }
+
+  // --- Section Carte des Territoires Inexplorés ---
+  .map-section {
+    background-color: #fff; // Fond blanc pour cette section
+    .quest-map-visual-placeholder {
+      // background-color: $light-section-bg; // Ou une image de fond
+      min-height: 200px; // Ajuster
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      img { max-width: 100%; height: auto; opacity: 0.7; }
+      p { font-style: italic; color: lighten($light-section-text-color, 20%); }
+    }
+    .territories-grid {
+      .territory-item {
+        padding: 1.5rem;
+        border: 1px solid transparent; // Pour la transition
+        border-radius: 8px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        cursor: default; // Ou 'pointer' si on veut un clic pour afficher info fixe
+
+        &:hover, &.active { // &.active si on gère un état cliqué
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+          border-color: rgba($primary-accent-color, 0.5);
+        }
+
+        h4 {
+          font-family: $font-family-titles;
+          color: $secondary-accent-color-1; // Bleu Saphir
+          margin-top: 0.75rem;
+          margin-bottom: 0.5rem;
+        }
+        .territory-info {
+          font-size: 0.9rem;
+          color: lighten($light-section-text-color, 10%);
+          // Style pour l'affichage au survol (peut être géré par *ngIf ou classes CSS)
+          // Par défaut, il est affiché s'il est dans le DOM via *ngIf
+          // On pourrait ajouter une animation d'apparition
+          opacity: 0;
+          max-height: 0;
+          overflow: hidden;
+          transition: opacity 0.3s ease, max-height 0.3s ease;
+        }
+        &:hover .territory-info, &.active .territory-info {
+            opacity: 1;
+            max-height: 100px; // Assez grand pour le contenu
+        }
+      }
+    }
+  }
+
+  // --- Artefacts de Sagesse ---
+  .wisdom-artifact {
+    display: inline-flex; // Ou block avec margin auto pour centrer
+    align-items: center;
+    padding: 8px 12px;
+    margin-top: 1.5rem;
+    border-radius: 20px;
+    background-color: rgba($primary-accent-color, 0.1);
+    color: $primary-accent-color; // Or
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    position: relative; // Pour le tooltip
+
+    .mat-icon { margin-right: 8px; }
+
+    &:hover, &.active {
+      background-color: rgba($primary-accent-color, 0.2);
+    }
+
+    .wisdom-tooltip {
+      display: none; // Caché par défaut, géré par *ngIf
+      position: absolute;
+      bottom: 100%; // Au-dessus de l'icône
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px); // Centrer et espacer
+      background-color: darken($hero-bg-color, 5%); // Fond sombre
+      color: $hero-text-color; // Texte clair
+      padding: 10px 15px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 250px; // Largeur du tooltip
+      font-size: 0.85rem;
+      z-index: 10; // Pour être au-dessus
+
+      // Flèche du tooltip (optionnel)
+      &::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: darken($hero-bg-color, 5%) transparent transparent transparent;
+      }
+    }
+     &.active .wisdom-tooltip { // S'affiche quand activeWisdom correspond
+        display: block;
+     }
+  }
+  .wisdom-artifact-oracle { // Positionnement spécifique si besoin
+    margin-left: auto;
+    margin-right: auto;
+    display: table; // Pour centrer un inline-flex
+  }
+
+
+  .problem-solution-section { /* ... (styles existants) ... */ }
+  .features-section { /* ... (styles existants) ... */ }
+  .final-cta-section { /* ... (styles existants) ... */ }
+  .homepage-footer { /* ... (styles existants) ... */ }
+
+  @keyframes bounceArrow { /* ... (animation existante) ... */ }
+  // Styles responsifs (existants, à compléter)
+  @media (max-width: 992px) { /* ... */ }
+  @media (max-width: 767px) { /* ... */ }
+  .row > [class*="col-"] { /* ... */ }
+  @media (min-width: 768px) { /* ... */ }
+  @media (min-width: 992px) { /* ... */ }
+  .visually-hidden { /* ... */ }
+}

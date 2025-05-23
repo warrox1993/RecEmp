@@ -1,0 +1,133 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Mon Tableau de Bord</h1>
+    <button mat-raised-button color="accent" (click)="openManualReminderDialog()" class="add-reminder-button">
+      <mat-icon>add_alarm</mat-icon>
+      Ajouter un Rappel Manuel
+    </button>
+  </div>
+
+  <div *ngIf="isLoadingSummary || isLoadingStatutChart || isLoadingTypeChart" class="loading-indicator">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Chargement des données du tableau de bord...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoadingSummary">
+    <div *ngIf="summaryData" class="summary-cards">
+      <mat-card class="summary-card clickable-card" (click)="navigateToCandidaturesFiltered('reponse', '')" matTooltip="Voir toutes les candidatures">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>work_outline</mat-icon>
+            Candidatures Totales
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="summary-value">{{ summaryData.totalCandidatures }}</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card clickable-card" (click)="navigateToCandidaturesFiltered('reponse', 'En attente')" matTooltip="Voir les candidatures en attente">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>hourglass_empty</mat-icon>
+            En Attente
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="summary-value">{{ summaryData.enAttente }}</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card clickable-card" (click)="navigateToCandidaturesFiltered('reponse', 'En discussion')" matTooltip="Voir les candidatures en discussion">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>forum</mat-icon>
+            En Discussion
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="summary-value">{{ summaryData.enDiscussion }}</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card clickable-card" (click)="navigateToCandidaturesFiltered('rappel', 'aujourdhui')" matTooltip="Voir les rappels d'aujourd'hui">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>event_available</mat-icon>
+            Rappels Aujourd'hui
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="summary-value">{{ summaryData.rappelsAujourdhui }}</p>
+        </mat-card-content>
+        <mat-card-actions *ngIf="summaryData.rappelsAujourdhui > 0">
+          <button mat-button color="primary">Voir les rappels</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </ng-container>
+
+
+  <mat-divider class="section-divider" *ngIf="!isLoadingSummary"></mat-divider>
+
+  <div class="charts-section-grid">
+    <div *ngIf="!isLoadingStatutChart" class="chart-container">
+      <mat-card class="chart-card" *ngIf="candidaturesParStatut.length > 0 && candidaturesParStatut[0].name !== 'Aucune donnée'; else noStatutData">
+        <mat-card-title>Candidatures par Statut</mat-card-title>
+        <mat-card-content>
+          <ngx-charts-pie-chart
+            [view]="view"
+            [results]="candidaturesParStatut"
+            [scheme]="colorSchemePie"
+            [gradient]="gradientPie"
+            [legend]="showLegendPie"
+            [labels]="showLabelsPie"
+            [doughnut]="isDoughnutPie"
+            [legendPosition]="legendPositionPie"
+            (select)="onChartSelect($event, 'statut')">
+          </ngx-charts-pie-chart>
+        </mat-card-content>
+      </mat-card>
+      <ng-template #noStatutData>
+        <div class="no-chart-data">
+          <mat-icon>pie_chart_outline</mat-icon>
+          <p>Pas de données de statut à afficher pour le moment.</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <div *ngIf="!isLoadingTypeChart" class="chart-container">
+       <mat-card class="chart-card" *ngIf="candidaturesParType.length > 0 && candidaturesParType[0].name !== 'Aucune donnée'; else noTypeData">
+        <mat-card-title>Candidatures par Type</mat-card-title>
+        <mat-card-content>
+          <ngx-charts-bar-vertical
+            [view]="view"
+            [results]="candidaturesParType"
+            [scheme]="colorSchemeBar"
+            [gradient]="gradientBar"
+            [xAxis]="showXAxisBar"
+            [yAxis]="showYAxisBar"
+            [legend]="showLegendBar"
+            [showXAxisLabel]="showXAxisLabelBar"
+            [showYAxisLabel]="showYAxisLabelBar"
+            [xAxisLabel]="xAxisLabelBar"
+            [yAxisLabel]="yAxisLabelBar"
+            (select)="onChartSelect($event, 'type')">
+          </ngx-charts-bar-vertical>
+        </mat-card-content>
+      </mat-card>
+      <ng-template #noTypeData>
+         <div class="no-chart-data">
+          <mat-icon>bar_chart</mat-icon>
+          <p>Pas de données de type à afficher pour le moment.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+   <div *ngIf="!isLoadingSummary && !summaryData && !isLoadingStatutChart && !isLoadingTypeChart" class="no-data-message">
+    <mat-icon>info_outline</mat-icon>
+    <p>Pas encore de données pour le tableau de bord.</p>
+    <button mat-stroked-button color="primary" routerLink="/candidatures">Voir mes candidatures</button>
+  </div>
+</div>

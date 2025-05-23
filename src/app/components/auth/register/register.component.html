@@ -1,0 +1,103 @@
+<div class="register-container">
+  <mat-card class="register-card">
+    <mat-card-header>
+      <mat-card-title class="register-title">Créer un compte</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="name-fields">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Prénom</mat-label>
+            <input matInput formControlName="firstName" required [readonly]="isLoading">
+            <mat-icon matSuffix>person</mat-icon>
+            <mat-error *ngIf="firstName?.invalid && (firstName?.dirty || firstName?.touched)">
+              <span *ngIf="firstName?.hasError('required')">Le prénom est requis.</span>
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Nom</mat-label>
+            <input matInput formControlName="lastName" required [readonly]="isLoading">
+            <mat-icon matSuffix>person_outline</mat-icon>
+            <mat-error *ngIf="lastName?.invalid && (lastName?.dirty || lastName?.touched)">
+              <span *ngIf="lastName?.hasError('required')">Le nom est requis.</span>
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Adresse Email</mat-label>
+          <input matInput formControlName="email" type="email" placeholder="exemple@domaine.com" required [readonly]="isLoading">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="email?.invalid && (email?.dirty || email?.touched)">
+            <span *ngIf="email?.hasError('required')">L'email est requis.</span>
+            <span *ngIf="email?.hasError('email')">Veuillez saisir une adresse email valide.</span>
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" required [readonly]="isLoading">
+          <button mat-icon-button matSuffix (click)="togglePasswordVisibility()" type="button" [attr.aria-label]="'Cacher/Montrer le mot de passe'" [attr.aria-pressed]="hidePassword" [disabled]="isLoading">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="password?.invalid && (password?.dirty || password?.touched)">
+            {{ getPasswordErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <div class="password-strength-indicators" *ngIf="password?.value && (password?.touched || password?.dirty)">
+          <h4>Votre mot de passe doit contenir :</h4>
+          <div class="criteria-item" [class.valid]="passwordCriteria.isLongEnough" [class.invalid]="!passwordCriteria.isLongEnough && password?.value?.length > 0">
+            <mat-icon>{{ passwordCriteria.isLongEnough ? 'check_circle' : (password?.value?.length > 0 ? 'cancel' : 'radio_button_unchecked') }}</mat-icon>
+            <span>Au moins 8 caractères</span>
+          </div>
+          <div class="criteria-item" [class.valid]="passwordCriteria.hasUpperCase" [class.invalid]="!passwordCriteria.hasUpperCase && password?.value?.length > 0">
+            <mat-icon>{{ passwordCriteria.hasUpperCase ? 'check_circle' : (password?.value?.length > 0 ? 'cancel' : 'radio_button_unchecked') }}</mat-icon>
+            <span>Une lettre majuscule (A-Z)</span>
+          </div>
+          <div class="criteria-item" [class.valid]="passwordCriteria.hasLowerCase" [class.invalid]="!passwordCriteria.hasLowerCase && password?.value?.length > 0">
+            <mat-icon>{{ passwordCriteria.hasLowerCase ? 'check_circle' : (password?.value?.length > 0 ? 'cancel' : 'radio_button_unchecked') }}</mat-icon>
+            <span>Une lettre minuscule (a-z)</span>
+          </div>
+          <div class="criteria-item" [class.valid]="passwordCriteria.hasNumeric" [class.invalid]="!passwordCriteria.hasNumeric && password?.value?.length > 0">
+            <mat-icon>{{ passwordCriteria.hasNumeric ? 'check_circle' : (password?.value?.length > 0 ? 'cancel' : 'radio_button_unchecked') }}</mat-icon>
+            <span>Un chiffre (0-9)</span>
+          </div>
+          <div class="criteria-item" [class.valid]="passwordCriteria.hasSpecialChar" [class.invalid]="!passwordCriteria.hasSpecialChar && password?.value?.length > 0">
+            <mat-icon>{{ passwordCriteria.hasSpecialChar ? 'check_circle' : (password?.value?.length > 0 ? 'cancel' : 'radio_button_unchecked') }}</mat-icon>
+            <span>Un caractère spécial (!&amp;#64;#$%...)</span>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirmer le mot de passe</mat-label>
+          <input matInput formControlName="confirmPassword" [type]="hideConfirmPassword ? 'password' : 'text'" required [readonly]="isLoading">
+          <button mat-icon-button matSuffix (click)="toggleConfirmPasswordVisibility()" type="button" [attr.aria-label]="'Cacher/Montrer le mot de passe'" [attr.aria-pressed]="hideConfirmPassword" [disabled]="isLoading">
+            <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)">
+            <span *ngIf="confirmPassword?.hasError('required')">La confirmation du mot de passe est requise.</span>
+          </mat-error>
+          <mat-error *ngIf="registerForm.hasError('passwordsMismatch') && confirmPassword?.touched && !confirmPassword?.hasError('required')">
+            Les mots de passe ne correspondent pas.
+          </mat-error>
+        </mat-form-field>
+
+        <div *ngIf="registrationError && !isLoading" class="register-error-message">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ registrationError }}</span>
+        </div>
+
+        <div class="register-button-container">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading" class="full-width register-button">
+            <span *ngIf="!isLoading">S'inscrire</span>
+            <mat-spinner *ngIf="isLoading" diameter="24" color="accent" class="button-spinner"></mat-spinner>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+    <mat-card-actions class="register-actions">
+      <a routerLink="/login" class="link" [class.disabled-link]="isLoading">Déjà un compte ? Connectez-vous</a>
+    </mat-card-actions>
+  </mat-card>
+</div>
