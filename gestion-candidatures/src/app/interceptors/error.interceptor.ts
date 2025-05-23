@@ -9,59 +9,140 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AuthService } from '../services/auth.service'; // Assure-toi que le chemin est correct
-import { Router } from '@angular/router'; // Pour la redirection
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        let errorMessage = `Erreur Interceptée: ${error.message}`;
-        console.error('ErrorInterceptor: Erreur brute', error);
+        let errorMessage = 'Une erreur est survenue';
+        let userMessage = errorMessage; // Message affiché à l'utilisateur
+
+        console.error('ErrorInterceptor: Erreur interceptée', error);
 
         if (error.error instanceof ErrorEvent) {
           // Erreur côté client ou réseau
-          errorMessage = `Erreur Client: ${error.error.message}`;
+          errorMessage = `Erreur réseau: ${error.error.message}`;
+          userMessage = 'Problème de connexion. Vérifiez votre connexion internet.';
         } else {
-          // Le backend a retourné un code d'erreur
-          errorMessage = `Code ${error.status}: ${error.error?.message || error.statusText}`;
+          // Erreur retournée par le backend
+          errorMessage = `Erreur ${error.status}: ${error.error?.message || error.statusText}`;
 
           switch (error.status) {
-            case 401: // Non autorisé (souvent token invalide/expiré)
-              console.log('ErrorInterceptor: Erreur 401 - Non autorisé. Déconnexion.');
-              this.authService.logout(); // Déconnecter l'utilisateur
-              // Optionnel: afficher un message à l'utilisateur
-              // this.router.navigate(['/login'], { queryParams: { sessionExpired: true } });
-              errorMessage = 'Votre session a expiré ou vous n\'êtes pas autorisé. Veuillez vous reconnecter.';
+            case 0:
+              userMessage = 'Impossible de joindre le serveur. Vérifiez votre connexion.';
               break;
-            case 403: // Interdit (l'utilisateur est authentifié mais n'a pas les droits)
-              console.log('ErrorInterceptor: Erreur 403 - Accès interdit.');
-              // Rediriger vers une page "accès interdit" ou la page d'accueil
-              // this.router.navigate(['/forbidden']); // Si tu as une page dédiée
-              errorMessage = 'Vous n\'avez pas les droits nécessaires pour accéder à cette ressource.';
+
+            case 400:
+              userMessage = error.error?.message || 'Données invalides. Vérifiez votre saisie.';
               break;
-            case 404: // Non trouvé
-                errorMessage = 'La ressource demandée n\'a pas été trouvée.';
-                break;
-            case 500: // Erreur serveur interne
-                errorMessage = 'Une erreur interne est survenue sur le serveur. Veuillez réessayer plus tard.';
-                break;
-            // Tu peux ajouter d'autres cas ici
+
+            case 401:
+              // Non autorisé - géré par AuthInterceptor
+              userMessage = 'Session expirée ou accès non autorisé.';
+              // Ne pas déconnecter ici, c'est géré par AuthInterceptor
+              break;
+
+            case 403:
+              userMessage = 'Vous n\'avez pas les droits pour effectuer cette action.';
+              // Optionnel : rediriger vers une page d'accès refusé
+              // this.router.navigate(['/access-denied']);
+              break;
+
+            case 404:
+              userMessage = 'Ressource introuvable.';
+              break;
+
+            case 409:
+              userMessage = error.error?.message || 'Conflit de données. Cette action n\'est pas possible.';
+              break;
+
+            case 422:
+              userMessage = error.error?.message || 'Données invalides. Vérifiez votre saisie.';
+              break;
+
+            case 429:
+              userMessage = 'Trop de requêtes. Veuillez patienter avant de réessayer.';
+              break;
+
+            case 500:
+              userMessage = 'Erreur serveur. Nos équipes sont prévenues.';
+              this.logErrorToConsole(error);
+              break;
+
+            case 502:
+            case 503:
+            case 504:
+              userMessage = 'Service temporairement indisponible. Réessayez dans quelques instants.';
+              break;
+
+            default:
+              userMessage = error.error?.message || `Erreur inattendue (${error.status})`;
           }
         }
-        // Il est souvent préférable de laisser le composant qui a fait l'appel gérer l'affichage de l'erreur spécifique
-        // Mais pour les erreurs critiques comme 401, une action globale est bien.
-        // Retourner l'erreur pour qu'elle puisse être traitée par le souscripteur si besoin,
-        // ou la transformer en une erreur plus "user-friendly".
-        return throwError(() => new Error(errorMessage)); // Retourner une nouvelle erreur avec le message formaté
+
+        // Afficher le message à l'utilisateur seulement pour certaines erreurs
+        if (this.shouldShowErrorToUser(error)) {
+          this.showErrorMessage(userMessage);
+        }
+
+        // Logger l'erreur complète en développement
+        if (this.isDevelopment()) {
+          console.error('Détails de l\'erreur:', {
+            message: errorMessage,
+            status: error.status,
+            error: error.error,
+            url: error.url
+          });
+        }
+
+        // Retourner l'erreur pour que les composants puissent la gérer si nécessaire
+        return throwError(() => ({
+          message: userMessage,
+          status: error.status,
+          originalError: error
+        }));
       })
     );
+  }
+
+  private shouldShowErrorToUser(error: HttpErrorResponse): boolean {
+    // Ne pas afficher les erreurs 401 (gérées par AuthInterceptor)
+    // Ne pas afficher les erreurs de validation (422) car elles sont gérées dans les formulaires
+    const silentErrors = [401, 422];
+    return !silentErrors.includes(error.status);
+  }
+
+  private showErrorMessage(message: string): void {
+    this.snackBar.open(message, 'Fermer', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['error-snackbar']
+    });
+  }
+
+  private isDevelopment(): boolean {
+    // À adapter selon votre configuration
+    return !window.location.hostname.includes('prod');
+  }
+
+  private logErrorToConsole(error: HttpErrorResponse): void {
+    console.group('🔴 Erreur Serveur');
+    console.error('Status:', error.status);
+    console.error('Message:', error.message);
+    console.error('URL:', error.url);
+    console.error('Error Object:', error.error);
+    console.groupEnd();
   }
 }

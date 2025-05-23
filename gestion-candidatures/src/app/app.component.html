@@ -1,3 +1,4 @@
+// src/app/app.component.html - MISE À JOUR AVEC NAVIGATION KANBAN
 <div class="app-container">
   <mat-toolbar color="primary" class="app-header">
     <span class="app-title" routerLink="/">{{ title }}</span>
@@ -19,13 +20,34 @@
         <mat-icon>dashboard</mat-icon>
         Tableau de Bord
       </a>
-      <a mat-button routerLink="/candidatures">
-        <mat-icon>list_alt</mat-icon>
-        Mes Candidatures
-      </a>
+
+      <!-- Menu déroulant pour les candidatures -->
+      <button mat-button [matMenuTriggerFor]="candidaturesMenu" class="candidatures-menu-btn">
+        <mat-icon>work</mat-icon>
+        Candidatures
+        <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #candidaturesMenu="matMenu" class="candidatures-submenu">
+        <a mat-menu-item routerLink="/candidatures">
+          <mat-icon>list_alt</mat-icon>
+          <span>Vue Liste</span>
+        </a>
+        <a mat-menu-item routerLink="/kanban">
+          <mat-icon>view_kanban</mat-icon>
+          <span>Vue Kanban</span>
+          <mat-chip class="new-feature-chip">NEW</mat-chip>
+        </a>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="openQuickAddDialog()">
+          <mat-icon>add_circle_outline</mat-icon>
+          <span>Nouvelle candidature</span>
+        </button>
+      </mat-menu>
+
       <a mat-button routerLink="/reminders">
         <mat-icon>checklist_rtl</mat-icon>
         Mes Rappels
+        <span *ngIf="unreadNotificationsCount() > 0" class="reminder-badge">{{ unreadNotificationsCount() }}</span>
       </a>
 
       <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" aria-label="Notifications" class="notifications-button">
@@ -65,9 +87,11 @@
         <span *ngIf="user.firstName" class="user-name-display">{{ user.firstName }}</span>
       </button>
       <mat-menu #userMenu="matMenu">
-        <button mat-menu-item routerLink="/profil"> <mat-icon>manage_accounts</mat-icon>
+        <button mat-menu-item routerLink="/profil">
+          <mat-icon>manage_accounts</mat-icon>
           <span>Mon Profil</span>
         </button>
+        <mat-divider></mat-divider>
         <button mat-menu-item (click)="logout()">
           <mat-icon>logout</mat-icon>
           <span>Déconnexion</span>
@@ -82,5 +106,5 @@
 
   <footer class="app-footer">
     <p>&copy; {{ currentYear }} {{ title }}. Tous droits réservés.</p>
-    </footer>
+  </footer>
 </div>

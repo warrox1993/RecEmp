@@ -4,38 +4,73 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpInterceptor
+  HttpInterceptor,
+  HttpErrorResponse
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { AuthService } from '../services/auth.service'; // Assure-toi que le chemin est correct
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    // Récupérer le token valide
     const authToken = this.authService.getToken();
-    // Cloner la requête pour y ajouter le header d'autorisation
-    // Seulement si le token existe et que la requête n'est pas vers une API d'authentification
-    // Tu devras peut-être affiner la condition pour exclure les URLs de login/register
-    // Par exemple, en vérifiant si request.url.includes('/api/auth/')
 
-    // Exemple d'URL de base pour ton API (à adapter)
-    const backendApiUrl = 'http://localhost:8080/api/'; // Ou l'URL de ton API Spring Boot
+    // URL de base de l'API (à adapter selon votre configuration)
+    const backendApiUrl = 'http://localhost:8080/api/';
 
-    if (authToken && request.url.startsWith(backendApiUrl) && !request.url.includes('/auth/')) {
-      // Si l'URL commence par l'URL de ton API et ne contient pas '/auth/' (pour login/register)
+    // Cloner la requête et ajouter le token si nécessaire
+    if (authToken && this.shouldAddToken(request.url, backendApiUrl)) {
       const authReq = request.clone({
         setHeaders: {
-          Authorization: `Bearer ${authToken}`
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
         }
       });
-      // console.log('AuthInterceptor: Ajout du token Bearer', authReq.headers.get('Authorization'));
-      return next.handle(authReq);
+
+      return next.handle(authReq).pipe(
+        catchError((error: HttpErrorResponse) => {
+          // Si erreur 401, vérifier si le token a expiré
+          if (error.status === 401) {
+            console.log('AuthInterceptor: Erreur 401 détectée');
+            const expirationTime = this.authService.getTokenExpirationTime();
+
+            if (expirationTime === null || expirationTime <= 0) {
+              console.log('AuthInterceptor: Token expiré, déconnexion');
+              this.authService.logout();
+              this.router.navigate(['/login'], {
+                queryParams: { message: 'Votre session a expiré. Veuillez vous reconnecter.' }
+              });
+            }
+          }
+          return throwError(() => error);
+        })
+      );
     }
 
-    // Pour les autres requêtes (ou si pas de token), on ne modifie rien
+    // Pour les requêtes sans token ou qui ne nécessitent pas d'authentification
     return next.handle(request);
+  }
+
+  private shouldAddToken(url: string, backendApiUrl: string): boolean {
+    // Ne pas ajouter de token pour les endpoints d'authentification
+    const authEndpoints = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/forgot-password'];
+
+    // Vérifier si l'URL est pour notre API
+    if (!url.startsWith(backendApiUrl)) {
+      return false;
+    }
+
+    // Vérifier si c'est un endpoint d'authentification
+    const isAuthEndpoint = authEndpoints.some(endpoint => url.includes(endpoint));
+    return !isAuthEndpoint;
   }
 }

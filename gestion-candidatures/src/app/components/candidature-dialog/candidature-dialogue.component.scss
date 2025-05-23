@@ -1,0 +1,43 @@
+// Styles pour le dialogue d'ajout/modification de candidature
+
+// Padding pour le contenu du dialogue
+div[mat-dialog-content] {
+  padding: 10px 24px; // Ajoute de l'espace à gauche et à droite
+}
+
+.candidature-form {
+  display: grid;
+  // Par défaut, deux colonnes pour les écrans plus larges
+  grid-template-columns: 1fr 1fr;
+  gap: 16px; // Espace entre les champs du formulaire
+}
+
+// Champ qui prend toute la largeur (comme les commentaires)
+.full-width-field {
+  grid-column: 1 / -1; // S'étend sur toutes les colonnes de la grille
+}
+
+// Style pour les champs désactivés (comme la date de rappel si non personnalisée)
+.disabled-field {
+  opacity: 0.6; // Réduit l'opacité pour indiquer qu'il est désactivé
+}
+
+.disabled-field input,
+.disabled-field mat-datepicker-toggle {
+  pointer-events: none; // Empêche les interactions avec les champs désactivés
+}
+
+// Pour les écrans plus petits (tablettes et mobiles), passer le formulaire en une seule colonne
+@media (max-width: 768px) {
+  .candidature-form {
+    grid-template-columns: 1fr; // Une seule colonne
+  }
+}
+
+// Styles pour les actions du dialogue (boutons Annuler/Ajouter)
+// mat-dialog-actions est un sélecteur d'élément Material, on peut le styler directement si besoin.
+// Par exemple, pour s'assurer qu'ils ont un padding suffisant :
+// mat-dialog-actions {
+//   padding: 16px 24px !important;
+// }
+// Cependant, le padding par défaut de Material est généralement correct.

@@ -1,4 +1,4 @@
-// src/app/services/auth.service.ts - VERSION AVEC IDENTIFIANTS VALIDES
+// src/app/services/auth.service.ts
 import { Injectable, signal, computed, WritableSignal, Signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
@@ -8,125 +8,114 @@ import { User, LoginCredentials, RegisterPayload } from '../models/user.model';
 
 interface AuthResponse {
   token: string;
+  expiresIn?: number; // Durée de vie du token en secondes
   user?: User;
+}
+
+interface StoredToken {
+  token: string;
+  expiresAt: number; // Timestamp d'expiration
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private _currentUser: WritableSignal<User | null> = signal<User | null>(null);
+  // private apiUrl = 'http://localhost:8080/api/auth'; // Pour plus tard
+
+  // Utilisation d'un WritableSignal pour l'état de l'utilisateur actuel
+  private _currentUser: WritableSignal<User | null> = signal<User | null>(this.getInitialUserFromStorage());
+  // Signal public en lecture seule pour l'utilisateur actuel
   public readonly currentUser: Signal<User | null> = this._currentUser.asReadonly();
 
-  public readonly isAuthenticated: Signal<boolean> = computed(() => !!this._currentUser() && !!this.getToken());
+  // Signal calculé pour savoir si l'utilisateur est authentifié
+  public readonly isAuthenticated: Signal<boolean> = computed(() => {
+    const user = this._currentUser();
+    const token = this.getValidToken();
+    return !!user && !!token;
+  });
+
+  // Signal calculé pour les rôles de l'utilisateur
   public readonly userRoles: Signal<string[] | undefined> = computed(() => this._currentUser()?.roles);
 
   private readonly TOKEN_KEY = 'protrack_cv_auth_token';
   private readonly USER_KEY = 'protrack_cv_user_info';
-  private initialized = false;
+  private readonly DEFAULT_TOKEN_DURATION = 3600 * 24; // 24 heures en secondes
 
   constructor(
     private http: HttpClient,
     private router: Router
   ) {
-    console.log('🔧 AuthService constructor - début');
-    this.initializeFromStorage();
-    console.log('🔧 AuthService constructor - fin');
-  }
-
-  private initializeFromStorage(): void {
-    if (this.initialized) return;
-    this.initialized = true;
-
-    try {
-      console.log('🔧 AuthService: Chargement depuis localStorage...');
-      const initialUser = this.getInitialUserFromStorage();
-      this._currentUser.set(initialUser);
-      console.log('✅ AuthService: Utilisateur initial chargé:', initialUser ? initialUser.email : 'aucun');
-    } catch (error) {
-      console.error('❌ Erreur lors de l\'initialisation AuthService:', error);
-      this._currentUser.set(null);
-    }
+    // Vérifier périodiquement l'expiration du token
+    this.startTokenExpirationCheck();
   }
 
   private getInitialUserFromStorage(): User | null {
-    try {
-      const token = localStorage.getItem(this.TOKEN_KEY);
-      const storedUser = localStorage.getItem(this.USER_KEY);
+    const token = this.getValidToken();
+    const storedUser = localStorage.getItem(this.USER_KEY);
 
-      if (token && storedUser) {
-        console.log('🔧 AuthService: Token et utilisateur trouvés dans localStorage');
-        const user = JSON.parse(storedUser) as User;
-        console.log('🔧 AuthService: Utilisateur parsé:', user.email);
-        return user;
-      } else {
-        console.log('🔧 AuthService: Aucun token ou utilisateur en localStorage');
+    if (token && storedUser) {
+      try {
+        return JSON.parse(storedUser) as User;
+      } catch (e) {
+        console.error("Error parsing stored user", e);
+        this.clearUserSession();
         return null;
       }
-    } catch (e) {
-      console.error("❌ Erreur lors du parsing de l'utilisateur stocké:", e);
-      this.clearUserSession();
-      return null;
     }
+    return null;
+  }
+
+  private startTokenExpirationCheck(): void {
+    // Vérifier toutes les minutes si le token a expiré
+    setInterval(() => {
+      if (this.isTokenExpired()) {
+        console.log('Token expiré, déconnexion automatique');
+        this.logout();
+      }
+    }, 60000); // 60 secondes
   }
 
   login(credentials: LoginCredentials): Observable<User | null> {
     console.log(`AuthService: Tentative de connexion pour ${credentials.email}`);
 
-    // CORRECTION: Identifiants qui passent la validation du formulaire
-    if (credentials.email === 'admin@protrack.com' && credentials.password === 'admin123') {
-      const adminUser: User = {
-        id: '1',
-        firstName: 'Admin',
-        lastName: 'Administrator',
-        email: 'admin@protrack.com',
-        roles: ['USER', 'ADMIN']
-      };
-      const mockToken = 'admin_jwt_token_12345';
-
-      this.setSession(mockToken, adminUser);
-      console.log('✅ Connexion admin réussie !');
-      return of(adminUser).pipe(delay(500));
-    }
-    // Compte utilisateur simple
-    else if (credentials.email === 'user@protrack.com' && credentials.password === 'user123') {
-      const userUser: User = {
-        id: '3',
-        firstName: 'Utilisateur',
-        lastName: 'Standard',
-        email: 'user@protrack.com',
-        roles: ['USER']
-      };
-      const mockToken = 'user_jwt_token_12345';
-
-      this.setSession(mockToken, userUser);
-      console.log('✅ Connexion utilisateur réussie !');
-      return of(userUser).pipe(delay(500));
-    }
-    // Ancien compte de test (toujours disponible)
-    else if (credentials.email === 'test@example.com' && credentials.password === 'password') {
+    // Simulation actuelle avec gestion de l'expiration
+    if (credentials.email === 'test@example.com' && credentials.password === 'password') {
       const mockUser: User = {
-        id: '2',
+        id: '1',
         firstName: 'Jean',
         lastName: 'Test',
         email: 'test@example.com',
-        roles: ['USER']
+        roles: ['USER', 'ADMIN']
       };
-      const mockToken = 'test_jwt_token_12345';
+      const mockToken = 'mock_jwt_token_' + Date.now();
+      const expiresIn = this.DEFAULT_TOKEN_DURATION;
 
-      this.setSession(mockToken, mockUser);
-      console.log('✅ Connexion test réussie !');
+      this.setSession(mockToken, expiresIn, mockUser);
       return of(mockUser).pipe(delay(500));
+    } else {
+      return throwError(() => new Error('Identifiants incorrects')).pipe(delay(500));
     }
-    else {
-      console.log('❌ Identifiants incorrects pour:', credentials.email);
-      return throwError(() => new Error('Identifiants incorrects. Essayez admin@protrack.com/admin123 ou user@protrack.com/user123')).pipe(delay(500));
-    }
+
+    // Code pour l'API réelle (à décommenter plus tard)
+    /*
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap(response => {
+        if (response && response.token) {
+          const expiresIn = response.expiresIn || this.DEFAULT_TOKEN_DURATION;
+          this.setSession(response.token, expiresIn, response.user);
+        }
+      }),
+      map(response => response.user || null),
+      catchError(this.handleError.bind(this))
+    );
+    */
   }
 
   register(payload: RegisterPayload): Observable<any> {
     console.log(`AuthService: Tentative d'inscription pour ${payload.email}`);
 
+    // Simulation actuelle
     if (payload.email.includes('exist')) {
       return throwError(() => new Error('Cet email est déjà utilisé.')).pipe(delay(500));
     }
@@ -141,9 +130,17 @@ export class AuthService {
 
     console.log('Inscription simulée réussie pour:', mockUser);
     return of({
-      message: 'Inscription réussie ! Vous pouvez maintenant vous connecter.',
+      message: 'Inscription réussie ! Veuillez vous connecter.',
       user: mockUser
     }).pipe(delay(500));
+
+    // Code pour l'API réelle (à décommenter plus tard)
+    /*
+    return this.http.post(`${this.apiUrl}/register`, payload).pipe(
+      tap(response => console.log('Inscription réussie', response)),
+      catchError(this.handleError.bind(this))
+    );
+    */
   }
 
   logout(): void {
@@ -152,56 +149,100 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  // Récupérer le token seulement s'il est valide
   getToken(): string | null {
+    return this.getValidToken();
+  }
+
+  private getValidToken(): string | null {
+    const storedTokenStr = localStorage.getItem(this.TOKEN_KEY);
+    if (!storedTokenStr) return null;
+
     try {
-      return localStorage.getItem(this.TOKEN_KEY);
-    } catch (error) {
-      console.error('❌ Erreur lors de la récupération du token:', error);
+      const storedToken: StoredToken = JSON.parse(storedTokenStr);
+      const now = Date.now();
+
+      if (storedToken.expiresAt > now) {
+        return storedToken.token;
+      } else {
+        console.log('Token expiré, suppression');
+        this.clearUserSession();
+        return null;
+      }
+    } catch (e) {
+      console.error('Erreur lors de la lecture du token', e);
+      this.clearUserSession();
       return null;
     }
   }
 
-  private setSession(token: string, user?: User): void {
-    try {
-      localStorage.setItem(this.TOKEN_KEY, token);
-      if (user) {
-        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-        this._currentUser.set(user);
-        console.log('✅ Session utilisateur définie pour:', user.email);
-      } else {
-        localStorage.removeItem(this.USER_KEY);
-        this._currentUser.set(null);
-        console.log('🔧 Session utilisateur vidée');
-      }
-    } catch (error) {
-      console.error('❌ Erreur lors de la définition de la session:', error);
+  private isTokenExpired(): boolean {
+    const token = this.getValidToken();
+    return !token;
+  }
+
+  private setSession(token: string, expiresIn: number, user?: User): void {
+    const expiresAt = Date.now() + (expiresIn * 1000); // Convertir en millisecondes
+    const storedToken: StoredToken = {
+      token,
+      expiresAt
+    };
+
+    localStorage.setItem(this.TOKEN_KEY, JSON.stringify(storedToken));
+
+    if (user) {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+      this._currentUser.set(user);
+    } else {
+      localStorage.removeItem(this.USER_KEY);
+      this._currentUser.set(null);
     }
+
+    console.log(`Session créée, expiration dans ${expiresIn} secondes`);
   }
 
   private clearUserSession(): void {
-    try {
-      localStorage.removeItem(this.TOKEN_KEY);
-      localStorage.removeItem(this.USER_KEY);
-      this._currentUser.set(null);
-      console.log('🔧 Session utilisateur nettoyée');
-    } catch (error) {
-      console.error('❌ Erreur lors du nettoyage de la session:', error);
-    }
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    this._currentUser.set(null);
   }
 
-  private handleError(error: HttpErrorResponse) {
+  private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Une erreur inconnue est survenue !';
 
     if (error.error instanceof ErrorEvent) {
       errorMessage = `Erreur : ${error.error.message}`;
     } else {
       errorMessage = `Code d'erreur ${error.status}: ${error.message || error.error?.message || error.statusText}`;
+
       if (error.status === 401) {
-        console.error('Erreur 401: Non autorisé. Le token est peut-être invalide ou expiré.');
+        console.error('Erreur 401: Non autorisé.');
+        // La déconnexion est gérée par l'intercepteur d'erreur
       }
     }
 
     console.error(errorMessage);
     return throwError(() => new Error(errorMessage));
+  }
+
+  // Méthode pour rafraîchir le token (pour une implémentation future)
+  refreshToken(): Observable<any> {
+    // À implémenter avec l'API réelle
+    return throwError(() => new Error('Refresh token non implémenté'));
+  }
+
+  // Méthode pour obtenir le temps restant avant expiration (en secondes)
+  getTokenExpirationTime(): number | null {
+    const storedTokenStr = localStorage.getItem(this.TOKEN_KEY);
+    if (!storedTokenStr) return null;
+
+    try {
+      const storedToken: StoredToken = JSON.parse(storedTokenStr);
+      const now = Date.now();
+      const remaining = Math.max(0, storedToken.expiresAt - now) / 1000;
+      return Math.floor(remaining);
+    } catch (e) {
+      return null;
+    }
   }
 }

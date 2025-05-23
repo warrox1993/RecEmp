@@ -1,24 +1,38 @@
 // src/app/components/candidature-detail/candidature-detail.component.scss
+// Styles adaptés à la charte graphique de ProTrack CV
+
+// Utilisation des variables globales (--protrack-*) définies dans styles.scss
+
 :host {
   display: block; // Assure que le composant prend de la place
 }
 
+// Conteneur principal de la page de détail
 .detail-container {
-  padding: 20px;
-  max-width: 960px; // Un peu plus large pour le confort
-  margin: 20px auto; // Marge en haut et en bas aussi
-  background-color: #f9f9f9; // Fond léger pour toute la page de détail
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 1.5rem; // Padding ajusté pour mobile
+  max-width: 1024px; // Largeur maximale
+  margin: 1.5rem auto; // Marge standard
+  background-color: transparent; // Le fond est géré par .app-content ou .app-container
+  border-radius: 0; // Pas de bordure ou d'ombre sur le conteneur principal
+  box-shadow: none;
+
+  @media (min-width: 768px) {
+    padding: 2rem;
+    margin: 2rem auto;
+  }
 }
 
+// Style du bouton "Retour"
 .back-button {
   margin-bottom: 24px;
+  // Le style du bouton (couleurs, etc.) est hérité des styles globaux pour mat-button
+  // dans styles.scss, pas besoin de le surcharger ici.
   mat-icon {
     margin-right: 8px;
   }
 }
 
+// Style pour le spinner de chargement
 .loading-spinner {
   display: flex;
   flex-direction: column;
@@ -26,18 +40,24 @@
   justify-content: center;
   padding: 50px;
   text-align: center;
-  color: #555;
-  min-height: 300px; // Pour éviter que la page saute
+  color: var(--protrack-text-secondary); // Couleur du texte
+  min-height: 300px;
 
   p {
     margin-top: 20px;
     font-size: 1.2em;
+    font-family: 'Poppins', sans-serif; // Police pour les titres
   }
+  // La couleur du mat-spinner lui-même est gérée globalement dans styles.scss
 }
 
+// Carte pour les messages d'erreur
 .error-message-card {
   text-align: center;
   margin-top: 30px;
+  background-color: var(--protrack-surface); // Fond de la carte
+  border-radius: 20px; // Arrondi standard de ProTrack CV
+  box-shadow: var(--shadow-lg); // Ombre standard
 
   .error-content {
     padding: 30px;
@@ -50,126 +70,152 @@
     font-size: 64px;
     width: 64px;
     height: 64px;
-    color: var(--mat-warn-color, #f44336); // Utilise la couleur warn de Material
+    color: var(--color-error); // Utilise la variable d'erreur
     margin-bottom: 16px;
   }
   h2 {
+    font-family: 'Poppins', sans-serif;
     font-size: 1.8em;
-    color: #333;
+    color: var(--protrack-text-primary); // Couleur de titre
     margin-bottom: 8px;
   }
   p {
     font-size: 1.1em;
-    color: #555;
+    color: var(--protrack-text-secondary); // Couleur de texte secondaire
     margin-bottom: 24px;
   }
 }
 
-
+// Contenu principal de la candidature
 .candidature-content {
   .header-actions {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 16px;
+    // Le style du bouton FAB est hérité des styles globaux
   }
 
+  // Style des cartes pour les détails et l'historique
   .candidature-card, .historique-card {
     margin-bottom: 24px;
-    border-radius: 8px; // Coins arrondis pour les cartes
+    border-radius: 20px; // Arrondi standard
+    background-color: var(--protrack-surface);
+    box-shadow: var(--shadow-lg);
+    // Le padding est géré par mat-card-content, on peut l'ajuster si besoin
+    .mat-mdc-card-content {
+        padding: 1.5rem;
+    }
   }
 
   .main-title {
-    font-size: 1.6em; // Titre plus grand
-    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.8em; // Taille de titre
+    font-weight: 600;
+    color: var(--protrack-text-primary);
   }
 
-  .status-chip { // Style pour le statut comme une puce
-    padding: 3px 10px;
+  // Puces de statut avec les couleurs de ProTrack CV
+  .status-chip {
+    padding: 4px 12px; // Padding ajusté
     border-radius: 16px;
     font-size: 0.85em;
-    font-weight: 500;
-    margin-left: 5px;
-    color: #fff; // Couleur de texte par défaut pour les puces
+    font-weight: 600; // Poids de police augmenté
+    margin-left: 12px;
+    vertical-align: middle; // Mieux aligner la puce
+    color: white; // Texte blanc par défaut pour un bon contraste
 
-    &.refus { background-color: #c62828; } // Rouge foncé
-    &.en-attente { background-color: #f57f17; } // Orange foncé
-    &.en-discussion { background-color: #0d47a1; } // Bleu foncé
-    &.accepte { background-color: #2e7d32; } // Vert foncé
+    &.refus { background-color: var(--color-error); }
+    &.en-attente {
+        background-color: var(--protrack-warning);
+        color: var(--protrack-text-primary); // Texte sombre sur fond jaune
+    }
+    &.en-discussion { background-color: var(--protrack-secondary); }
+    &.accepte { background-color: var(--protrack-accent); }
+    // Ajouter d'autres statuts si nécessaire
   }
 
 
+  // Grille pour les détails de la candidature
   .detail-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 12px 20px; // Espace vertical et horizontal
+    gap: 1.5rem 2rem; // Espacement vertical et horizontal
     padding: 16px 0;
 
     div {
-      padding-bottom: 6px;
-      font-size: 0.95em;
+      font-size: 1em; // Taille de police standard
+      color: var(--protrack-text-primary); // Couleur de texte
+
+      // Style des labels (ex: "Entreprise", "Date de candidature")
       strong {
-        color: var(--mdc-theme-primary, #3f51b5);
-        margin-right: 5px;
-        display: block; // Label sur sa propre ligne pour plus de clarté
-        margin-bottom: 2px;
-        font-size: 0.85em;
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.8em;
+        font-weight: 600;
         text-transform: uppercase;
-        color: #777;
+        letter-spacing: 0.5px;
+        color: var(--protrack-text-secondary); // Couleur du label
       }
+
+      // Style pour la section des commentaires
       pre.comments-text {
         white-space: pre-wrap;
         word-wrap: break-word;
-        font-family: inherit;
+        font-family: 'Inter', sans-serif;
         margin: 0;
-        padding: 8px;
-        background-color: #f5f5f5;
-        border-radius: 4px;
+        padding: 1rem;
+        background-color: var(--protrack-surface-alt); // Fond gris clair
+        border-radius: 12px; // Arrondi
         font-size: 0.95em;
-        line-height: 1.5;
+        line-height: 1.6;
+        color: var(--protrack-text-secondary);
+        border: 1px solid color-mix(in srgb, var(--protrack-surface-alt) 80%, black); // Bordure subtile
       }
     }
     .full-width-detail {
-      grid-column: 1 / -1;
-    }
-    .comments-section strong { // Pour que le label "Commentaires" soit aussi en majuscule
-        display: block;
-        margin-bottom: 4px;
-        font-size: 0.85em;
-        text-transform: uppercase;
-        color: #777;
+      grid-column: 1 / -1; // Prend toute la largeur de la grille
     }
   }
 
+  // Affichage du classement par étoiles
   .ranking-display mat-icon {
-    color: #ccc; // Couleur pour les étoiles vides
-    font-size: 20px;
+    font-size: 22px; // Taille ajustée
+    color: color-mix(in srgb, var(--protrack-surface-alt) 60%, black); // Couleur des étoiles vides
+
     &.active {
-      color: #ffc107; // Jaune pour les étoiles pleines
+      color: var(--protrack-warning); // Jaune/orange pour les étoiles pleines
     }
   }
 }
 
+// Séparateur entre les sections
 .section-divider {
   margin: 32px 0;
+  border-top-color: color-mix(in srgb, var(--protrack-surface-alt) 70%, black); // Couleur du séparateur
 }
 
+// Carte de l'historique
 .historique-card {
-  mat-card-title {
-    margin-bottom: 16px; // Espace sous le titre de l'historique
+  .mat-mdc-card-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--protrack-text-primary);
   }
+  // Message quand l'historique est vide
   .empty-historique {
     text-align: center;
     padding: 30px 20px;
-    color: #777;
+    color: var(--protrack-text-secondary);
     font-style: italic;
-    background-color: #fafafa;
-    border-radius: 4px;
+    background-color: var(--protrack-surface-alt);
+    border-radius: 12px;
     mat-icon {
       font-size: 48px;
       width: 48px;
       height: 48px;
       margin-bottom: 10px;
-      color: #bbb;
+      color: color-mix(in srgb, var(--protrack-text-secondary) 50%, white); // Icône grisée
     }
     p { margin: 5px 0; }
   }
@@ -179,60 +225,66 @@
   }
 
   .historique-item {
-    padding: 12px 0; // Un peu plus d'espace vertical
+    padding: 12px 0;
     .historique-item-icon {
-      color: var(--mdc-theme-primary, #3f51b5);
-      margin-right: 16px; // Plus d'espace pour l'icône
+      color: var(--protrack-secondary); // Icône avec la couleur secondaire
+      margin-right: 16px;
     }
     .historique-item-title {
-      font-weight: 500;
+      font-weight: 600;
       font-size: 1em;
       margin-bottom: 2px;
+      color: var(--protrack-text-primary);
     }
     .historique-item-date {
       font-size: 0.85em;
-      color: #666;
+      color: var(--protrack-text-secondary);
       font-weight: normal;
     }
     .historique-item-description {
       white-space: normal;
       font-size: 0.9em;
-      color: #444;
+      color: var(--protrack-text-secondary); // Texte de description
       line-height: 1.5;
     }
   }
   .historique-item-divider {
-    margin: 8px 0; // Espace autour du divider
+    margin: 8px 0;
+    border-top-color: var(--protrack-surface-alt);
   }
 }
 
+// Formulaire pour ajouter un événement à l'historique
 .historique-form {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--protrack-surface-alt);
 
   h4 {
     margin-bottom: 16px;
+    font-family: 'Poppins', sans-serif;
     font-size: 1.3em;
-    color: #333;
-    font-weight: 500;
+    color: var(--protrack-text-primary);
+    font-weight: 600;
   }
   .full-width {
     width: 100%;
     margin-bottom: 16px;
   }
+  // Le style du bouton "Ajouter" est géré par les styles globaux
   button[type="submit"] {
     margin-top: 8px;
   }
 }
 
+// Media Queries pour la réactivité
 @media (max-width: 768px) {
   .detail-container {
-    padding: 16px;
-    margin: 10px;
+    padding: 1rem;
+    margin: 1rem;
   }
   .header-actions {
-    justify-content: center; // Centrer le bouton FAB sur mobile
+    justify-content: flex-end; // Garder à droite mais peut-être plus petit
     margin-bottom: 20px;
   }
   .candidature-content .main-title {
@@ -242,14 +294,14 @@
 
 @media (max-width: 600px) {
   .detail-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; // Une seule colonne
   }
-   .candidature-content .main-title {
+  .candidature-content .main-title {
     font-size: 1.3em;
     line-height: 1.3;
   }
   .back-button {
-    width: 100%; // Bouton retour pleine largeur sur mobile
+    width: auto; // Pas de pleine largeur, garder compact
     margin-bottom: 16px;
   }
 }

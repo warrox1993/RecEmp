@@ -1,5 +1,5 @@
 // src/app/components/reminder-list/reminder-list.component.ts
-import { Component, OnInit, Signal, computed, signal } from '@angular/core'; // Ajout de signal
+import { Component, OnInit, Signal, computed, signal, WritableSignal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -12,6 +12,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
 
 import { Reminder } from '../../models/reminder.model';
 import { NotificationService } from '../../services/notification.service';
@@ -33,16 +35,21 @@ export class ReminderListComponent implements OnInit {
   allReminders: Signal<Reminder[]>;
   pendingReminders: Signal<Reminder[]>;
   completedReminders: Signal<Reminder[]>;
-  showCompleted = signal(false);
-  isRefreshing = signal(false);
+  showCompleted: WritableSignal<boolean> = signal(false);
+  isRefreshing: WritableSignal<boolean> = signal(false);
 
-  today: Date = new Date(); // today est déjà normalisé dans le constructeur
+  today: Date = new Date();
+
+  // Compteurs pour l'accessibilité
+  pendingCount: Signal<number>;
+  completedCount: Signal<number>;
 
   constructor(
     private titleService: Title,
     public notificationService: NotificationService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.allReminders = this.notificationService.reminders;
     this.today.setHours(0, 0, 0, 0);
@@ -58,6 +65,10 @@ export class ReminderListComponent implements OnInit {
         .filter(r => r.isCompleted)
         .sort((a, b) => b.reminderDate.getTime() - a.reminderDate.getTime())
     );
+
+    // Compteurs pour les messages ARIA
+    this.pendingCount = computed(() => this.pendingReminders().length);
+    this.completedCount = computed(() => this.completedReminders().length);
   }
 
   ngOnInit(): void {
@@ -65,38 +76,62 @@ export class ReminderListComponent implements OnInit {
     this.refreshRemindersAndNotifications();
   }
 
-  // NOUVELLE MÉTHODE pour vérifier si un rappel est en retard
   isReminderOverdue(reminder: Reminder): boolean {
-    // reminder.reminderDate est déjà un objet Date grâce au NotificationService
     return reminder.reminderDate.getTime() < this.today.getTime() && !reminder.isCompleted;
   }
 
   refreshRemindersAndNotifications(): void {
     this.isRefreshing.set(true);
+
+    // Annoncer le début du rafraîchissement pour les lecteurs d'écran
+    this.announceToScreenReader('Rafraîchissement des rappels en cours...');
+
     this.notificationService.refreshNotifications();
+
     setTimeout(() => {
       this.isRefreshing.set(false);
-      this.snackBar.open('Liste des rappels et notifications mise à jour.', 'OK', { duration: 2000 });
+      const message = 'Liste des rappels mise à jour.';
+      this.snackBar.open(message, 'OK', { duration: 2000 });
+      this.announceToScreenReader(message);
     }, 700);
   }
 
   toggleReminderCompletion(reminder: Reminder, event: MouseEvent): void {
     event.stopPropagation();
-    this.notificationService.completeReminder(reminder.id, !reminder.isCompleted);
-    this.snackBar.open(
-      `Rappel "${reminder.title}" marqué comme ${!reminder.isCompleted ? 'complété' : 'non complété'}.`,
-      'OK', { duration: 2500 }
-    );
+    const newStatus = !reminder.isCompleted;
+    this.notificationService.completeReminder(reminder.id, newStatus);
+
+    const message = `Rappel "${reminder.title}" marqué comme ${newStatus ? 'complété' : 'non complété'}.`;
+    this.snackBar.open(message, 'OK', { duration: 2500 });
+    this.announceToScreenReader(message);
   }
 
   deleteManualReminder(reminder: Reminder, event: MouseEvent): void {
     event.stopPropagation();
-    if (reminder.type === 'manuel') {
-      if (confirm(`Êtes-vous sûr de vouloir supprimer le rappel manuel "${reminder.title}" ?`)) {
+
+    if (reminder.type !== 'manuel') return;
+
+    const dialogData: ConfirmDialogData = {
+      title: 'Supprimer le rappel',
+      message: `Êtes-vous sûr de vouloir supprimer le rappel "${reminder.title}" ?`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      color: 'warn'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
         this.notificationService.deleteReminder(reminder.id);
-        this.snackBar.open(`Rappel manuel "${reminder.title}" supprimé.`, 'OK', { duration: 2500 });
+        const message = `Rappel "${reminder.title}" supprimé.`;
+        this.snackBar.open(message, 'OK', { duration: 2500 });
+        this.announceToScreenReader(message);
       }
-    }
+    });
   }
 
   navigateToCandidature(candidatureId?: number): void {
@@ -109,7 +144,55 @@ export class ReminderListComponent implements OnInit {
     return type === 'candidature' ? 'work_outline' : 'alarm';
   }
 
+  getReminderTypeLabel(type: Reminder['type']): string {
+    return type === 'candidature' ? 'Rappel de candidature' : 'Rappel manuel';
+  }
+
   toggleShowCompleted(): void {
-    this.showCompleted.set(!this.showCompleted());
+    const newValue = !this.showCompleted();
+    this.showCompleted.set(newValue);
+
+    const message = newValue
+      ? 'Affichage des rappels complétés activé'
+      : 'Affichage des rappels complétés désactivé';
+    this.announceToScreenReader(message);
+  }
+
+  // Méthode pour les annonces aux lecteurs d'écran
+  private announceToScreenReader(message: string): void {
+    // Créer un élément temporaire pour l'annonce ARIA
+    const announcement = document.createElement('div');
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.style.position = 'absolute';
+    announcement.style.left = '-10000px';
+    announcement.style.width = '1px';
+    announcement.style.height = '1px';
+    announcement.style.overflow = 'hidden';
+    announcement.textContent = message;
+
+    document.body.appendChild(announcement);
+
+    // Retirer l'élément après un court délai
+    setTimeout(() => {
+      document.body.removeChild(announcement);
+    }, 1000);
+  }
+
+  // Méthode pour formater la date de manière accessible
+  getAccessibleDateString(date: Date): string {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+    return date.toLocaleDateString('fr-FR', options);
+  }
+
+  // TrackBy pour optimiser les performances
+  trackByReminder(index: number, reminder: Reminder): string {
+    return reminder.id;
   }
 }

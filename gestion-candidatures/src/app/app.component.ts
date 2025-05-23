@@ -1,4 +1,4 @@
-// src/app/app.component.ts - VERSION FINALE COMPLÈTE
+// src/app/app.component.ts - MISE À JOUR AVEC SUPPORT KANBAN
 import { Component, OnInit, Signal } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -11,11 +11,14 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from './services/auth.service';
 import { User } from './models/user.model';
 import { NotificationService } from './services/notification.service';
 import { AppNotification } from './models/notification.model';
+import { CandidatureDialogComponent } from './components/candidature-dialog/candidature-dialogue.component';
 
 @Component({
   selector: 'app-root',
@@ -23,32 +26,34 @@ import { AppNotification } from './models/notification.model';
   imports: [
     CommonModule,
     RouterOutlet,
-    RouterModule, // Pour routerLink dans le template
+    RouterModule,
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
     MatBadgeModule,
     MatListModule,
-    MatDividerModule
+    MatDividerModule,
+    MatChipsModule
   ],
-  templateUrl: './app.component.html', // Utiliser le fichier HTML externe
+  templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
   title = 'ProTrack CV';
   currentYear = new Date().getFullYear();
 
-  // Accès direct aux signals des services (avec definite assignment assertion)
+  // Accès direct aux signals des services
   currentUser!: Signal<User | null>;
   isAuthenticated!: Signal<boolean>;
   notifications!: Signal<AppNotification[]>;
   unreadNotificationsCount!: Signal<number>;
 
   constructor(
-    public authService: AuthService, // Rendre public pour accès direct dans le template
-    public notificationService: NotificationService, // Rendre public
-    private router: Router
+    public authService: AuthService,
+    public notificationService: NotificationService,
+    private router: Router,
+    private dialog: MatDialog
   ) {
     console.log('🔧 AppComponent constructor - début');
 
@@ -88,12 +93,29 @@ export class AppComponent implements OnInit {
     if (notification.link) {
       this.router.navigateByUrl(notification.link);
     }
-    // Pour fermer le menu après un clic, si mat-menu ne le fait pas automatiquement
-    // Tu pourrais avoir besoin d'un @ViewChild sur le menu et appeler close()
   }
 
   markAllNotificationsAsRead(): void {
     this.notificationService.markAllAsRead();
+  }
+
+  // Nouvelle méthode pour ouvrir rapidement le dialog d'ajout de candidature
+  openQuickAddDialog(): void {
+    const dialogRef = this.dialog.open(CandidatureDialogComponent, {
+      width: 'clamp(300px, 90vw, 800px)',
+      maxWidth: '95vw',
+      data: { candidature: null }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Le service gère déjà l'ajout, pas besoin de logique supplémentaire ici
+        console.log('✅ Nouvelle candidature ajoutée depuis le menu rapide');
+
+        // Optionnel: rediriger vers la vue Kanban pour voir le résultat
+        this.router.navigate(['/kanban']);
+      }
+    });
   }
 
   logout(): void {

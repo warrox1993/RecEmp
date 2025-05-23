@@ -1,4 +1,4 @@
-/* src/app/app.component.scss */
+/* src/app/app.component.scss - MISE À JOUR AVEC STYLES KANBAN */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -12,6 +12,22 @@
   z-index: 1000;
   display: flex;
   padding: 0 16px;
+
+  // Nouveau: Support pour le menu déroulant candidatures
+  .candidatures-menu-btn {
+    display: flex;
+    align-items: center;
+
+    .dropdown-icon {
+      margin-left: 4px;
+      font-size: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    &[aria-expanded="true"] .dropdown-icon {
+      transform: rotate(180deg);
+    }
+  }
 }
 
 .app-title {
@@ -36,6 +52,51 @@
 .app-header a[mat-button] mat-icon, .app-header button[mat-button] mat-icon {
   margin-right: 4px;
   vertical-align: middle;
+}
+
+// Nouveau: Badge pour les rappels
+.reminder-badge {
+  background-color: #ff4081;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 0.7em;
+  font-weight: bold;
+  margin-left: 4px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+// Nouveau: Menu sous candidatures
+.candidatures-submenu {
+  min-width: 200px !important;
+
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+
+    .mat-icon {
+      margin-right: 12px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    span {
+      flex: 1;
+    }
+  }
+
+  .new-feature-chip {
+    background-color: #4caf50 !important;
+    color: white !important;
+    font-size: 0.6em !important;
+    height: 20px !important;
+    font-weight: 600 !important;
+    margin-left: 8px;
+    animation: pulse 2s infinite;
+  }
 }
 
 .notifications-button {
@@ -94,7 +155,6 @@
     &.erreur { color: var(--mat-red-600, #e53935); }
   }
 
-
   .notification-title {
     font-weight: 500;
     font-size: 0.95em;
@@ -108,7 +168,7 @@
     white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    line-clamp: 2; /* MODIFICATION: Ajout de la propriété standard */
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -137,7 +197,6 @@
   }
 }
 
-
 .app-content {
   flex-grow: 1;
   padding: 20px;
@@ -155,4 +214,82 @@
 
 .app-footer p {
   margin: 0 0 10px 0;
+}
+
+// Nouveau: User name display
+.user-name-display {
+  font-size: 0.9em;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+// Animation pour le badge "NEW"
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Responsive pour mobile
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 8px;
+
+    .app-title {
+      font-size: 1.1em;
+    }
+
+    .candidatures-menu-btn,
+    .app-header a[mat-button],
+    .app-header button[mat-button] {
+      padding: 0 8px;
+      margin-left: 4px;
+      min-width: auto;
+
+      span:not(.user-name-display):not(.reminder-badge) {
+        display: none; // Cacher le texte, garder seulement les icônes
+      }
+
+      .mat-icon {
+        margin-right: 0;
+      }
+    }
+
+    .user-name-display {
+      display: none; // Cacher le nom utilisateur sur mobile
+    }
+
+    .reminder-badge {
+      position: absolute;
+      top: 8px;
+      right: 4px;
+      transform: scale(0.8);
+    }
+  }
+
+  .candidatures-submenu {
+    min-width: 180px !important;
+  }
+}
+
+// Assure la compatibilité avec Angular Material
+::ng-deep {
+  .mat-mdc-menu-panel.candidatures-submenu {
+    margin-top: 8px;
+
+    .mat-mdc-menu-content {
+      padding: 8px 0;
+    }
+  }
+}
+
+// Style pour le dropdown icon des menus
+.dropdown-icon {
+  transition: transform 0.2s ease-in-out;
 }

@@ -97,28 +97,49 @@
     </mat-card>
   </section>
 
-  <div class="conteneur-tableau mat-elevation-z8">
-    <table mat-table [dataSource]="dataSource" matSort>
-      <ng-container matColumnDef="id"><th mat-header-cell *matHeaderCellDef mat-sort-header>#</th><td mat-cell *matCellDef="let c">{{c.id}}</td></ng-container>
-      <ng-container matColumnDef="date"><th mat-header-cell *matHeaderCellDef mat-sort-header>Date Cand.</th><td mat-cell *matCellDef="let c" class="cellule-cliquable-specifique" (click)="ouvrirDialogDate(c, $event)" matTooltip="Modifier la date de candidature"><div class="contenu-avec-icone">{{c.date}}<mat-icon class="icone-petite">event</mat-icon></div></td></ng-container>
-      <ng-container matColumnDef="type"><th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th><td mat-cell *matCellDef="let c" class="cellule-cliquable-specifique" (click)="basculerTypeCandidature(c, $event)" matTooltip="Changer le type (Job/Stage)"><div class="contenu-avec-icone">{{c.type}}<div class="interrupteur-bascule"><div class="fond-interrupteur" [ngClass]="{'job': c.type === 'Job', 'stage': c.type === 'Stage'}"><div class="poignee-interrupteur"></div></div></div></div></td></ng-container>
-      <ng-container matColumnDef="ranking"><th mat-header-cell *matHeaderCellDef mat-sort-header>Priorité</th><td mat-cell *matCellDef="let c"><div class="affichage-classement" [matTooltip]="'Priorité ' + c.ranking"><span class="point-classement" *ngFor="let dot of [1, 2, 3]" [ngClass]="{'active': dot <= c.ranking}"></span></div></td></ng-container>
-      <ng-container matColumnDef="entreprise"><th mat-header-cell *matHeaderCellDef mat-sort-header>Entreprise</th><td mat-cell *matCellDef="let c" class="cellule-entreprise">{{c.entreprise}}</td></ng-container>
-      <ng-container matColumnDef="poste"><th mat-header-cell *matHeaderCellDef mat-sort-header>Poste</th><td mat-cell *matCellDef="let c">{{c.poste}}</td></ng-container>
-      <ng-container matColumnDef="ville"><th mat-header-cell *matHeaderCellDef mat-sort-header>Ville</th><td mat-cell *matCellDef="let c">{{c.ville}}</td></ng-container>
-      <ng-container matColumnDef="region"><th mat-header-cell *matHeaderCellDef mat-sort-header>Région</th><td mat-cell *matCellDef="let candidature">{{candidature.region || '-'}}</td></ng-container>
-      <ng-container matColumnDef="contact"><th mat-header-cell *matHeaderCellDef mat-sort-header>Contact</th><td mat-cell *matCellDef="let c">{{c.contact || '-'}}</td></ng-container>
-      <ng-container matColumnDef="reponse"><th mat-header-cell *matHeaderCellDef mat-sort-header>Réponse</th><td mat-cell *matCellDef="let c"><span class="puce-reponse" [ngClass]="getClasseReponse(c.reponse)">{{c.reponse}}</span></td></ng-container>
-      <ng-container matColumnDef="source"><th mat-header-cell *matHeaderCellDef mat-sort-header>Source</th><td mat-cell *matCellDef="let c">{{c.source}}</td></ng-container>
-      <ng-container matColumnDef="dateRappel"><th mat-header-cell *matHeaderCellDef mat-sort-header>Date Rappel</th><td mat-cell *matCellDef="let candidature" class="cellule-cliquable-specifique" (click)="ouvrirDialogModificationRappel(candidature, $event)" matTooltip="Modifier le rappel"><span *ngIf="candidature.dateRappel">{{candidature.dateRappel}}<mat-icon *ngIf="getStatutRappel(candidature) !== 'aucun'" class="icone-rappel" [ngClass]="getStatutRappel(candidature)">{{ getStatutRappel(candidature) === 'urgent' ? 'notification_important' : (getStatutRappel(candidature) === 'aujourdhui' ? 'today' : 'event_upcoming') }}</mat-icon></span><span *ngIf="!candidature.dateRappel">-</span></td></ng-container>
-      <ng-container matColumnDef="commentaires"><th mat-header-cell *matHeaderCellDef mat-sort-header>Commentaires</th><td mat-cell *matCellDef="let c" class="cellule-commentaires" [matTooltip]="c.commentaires">{{ (c.commentaires && c.commentaires.length > 40) ? (c.commentaires | slice:0:40) + '...' : c.commentaires || '-' }}</td></ng-container>
-      <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef>Actions</th><td mat-cell *matCellDef="let c"><button mat-icon-button color="primary" (click)="ouvrirDialogModification(c, $event)" matTooltip="Modifier"><mat-icon>edit</mat-icon></button><button mat-icon-button color="warn" (click)="supprimerCandidature(c, $event)" matTooltip="Supprimer"><mat-icon>delete_outline</mat-icon></button></td></ng-container>
-      <tr mat-header-row *matHeaderRowDef="colonnesAffichees; sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: colonnesAffichees; trackBy: trackByCandidature" (click)="voirDetailsCandidature(row)" class="ligne-cliquable" [ngClass]="{'ligne-rappel-urgent': getStatutRappel(row) === 'urgent', 'ligne-rappel-aujourdhui': getStatutRappel(row) === 'aujourdhui'}"></tr>
-      <tr class="mat-row" *matNoDataRow><td class="mat-cell cellule-pas-de-donnees" [attr.colspan]="colonnesAffichees.length"><div class="message-pas-de-donnees"><mat-icon>search_off</mat-icon><p *ngIf="inputRecherche.value">Aucune candidature trouvée pour "{{inputRecherche.value}}" avec les filtres.</p><p *ngIf="!inputRecherche.value && filtresActifs()">Aucune candidature pour les filtres sélectionnés.</p><p *ngIf="!inputRecherche.value && !filtresActifs()">Aucune candidature. Ajoutez-en une !</p><button mat-stroked-button color="primary" (click)="reinitialiserTousLesFiltres()" *ngIf="filtresActifs() || inputRecherche.value"><mat-icon>clear_all</mat-icon> Réinitialiser</button></div></td></tr>
-    </table>
+  <div class="liste-candidatures-conteneur mat-elevation-z8">
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="id"><th mat-header-cell *matHeaderCellDef mat-sort-header>#</th><td mat-cell *matCellDef="let c">{{c.id}}</td></ng-container>
+        <ng-container matColumnDef="date"><th mat-header-cell *matHeaderCellDef mat-sort-header>Date Cand.</th><td mat-cell *matCellDef="let c" class="cellule-cliquable-specifique" (click)="ouvrirDialogDate(c, $event)" matTooltip="Modifier la date de candidature"><div class="contenu-avec-icone">{{c.date}}<mat-icon class="icone-petite">event</mat-icon></div></td></ng-container>
+        <ng-container matColumnDef="type"><th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th><td mat-cell *matCellDef="let c" class="cellule-cliquable-specifique" (click)="basculerTypeCandidature(c, $event)" matTooltip="Changer le type (Job/Stage)"><div class="contenu-avec-icone">{{c.type}}<div class="interrupteur-bascule"><div class="fond-interrupteur" [ngClass]="{'job': c.type === 'Job', 'stage': c.type === 'Stage'}"><div class="poignee-interrupteur"></div></div></div></div></td></ng-container>
+        <ng-container matColumnDef="ranking"><th mat-header-cell *matHeaderCellDef mat-sort-header>Priorité</th><td mat-cell *matCellDef="let c"><div class="affichage-classement" [matTooltip]="'Priorité ' + c.ranking"><span class="point-classement" *ngFor="let dot of [1, 2, 3]" [ngClass]="{'active': dot <= c.ranking}"></span></div></td></ng-container>
+        <ng-container matColumnDef="entreprise"><th mat-header-cell *matHeaderCellDef mat-sort-header>Entreprise</th><td mat-cell *matCellDef="let c" class="cellule-entreprise">{{c.entreprise}}</td></ng-container>
+        <ng-container matColumnDef="poste"><th mat-header-cell *matHeaderCellDef mat-sort-header>Poste</th><td mat-cell *matCellDef="let c">{{c.poste}}</td></ng-container>
+        <ng-container matColumnDef="ville"><th mat-header-cell *matHeaderCellDef mat-sort-header>Ville</th><td mat-cell *matCellDef="let c">{{c.ville}}</td></ng-container>
+        <ng-container matColumnDef="region"><th mat-header-cell *matHeaderCellDef mat-sort-header>Région</th><td mat-cell *matCellDef="let candidature">{{candidature.region || '-'}}</td></ng-container>
+        <ng-container matColumnDef="contact"><th mat-header-cell *matHeaderCellDef mat-sort-header>Contact</th><td mat-cell *matCellDef="let c">{{c.contact || '-'}}</td></ng-container>
+        <ng-container matColumnDef="reponse"><th mat-header-cell *matHeaderCellDef mat-sort-header>Réponse</th><td mat-cell *matCellDef="let c"><span class="puce-reponse" [ngClass]="getClasseReponse(c.reponse)">{{c.reponse}}</span></td></ng-container>
+        <ng-container matColumnDef="source"><th mat-header-cell *matHeaderCellDef mat-sort-header>Source</th><td mat-cell *matCellDef="let c">{{c.source}}</td></ng-container>
+        <ng-container matColumnDef="dateRappel"><th mat-header-cell *matHeaderCellDef mat-sort-header>Date Rappel</th><td mat-cell *matCellDef="let candidature" class="cellule-cliquable-specifique" (click)="ouvrirDialogModificationRappel(candidature, $event)" matTooltip="Modifier le rappel"><span *ngIf="candidature.dateRappel">{{candidature.dateRappel}}<mat-icon *ngIf="getStatutRappel(candidature) !== 'aucun'" class="icone-rappel" [ngClass]="getStatutRappel(candidature)">{{ getStatutRappel(candidature) === 'urgent' ? 'notification_important' : (getStatutRappel(candidature) === 'aujourdhui' ? 'today' : 'event_upcoming') }}</mat-icon></span><span *ngIf="!candidature.dateRappel">-</span></td></ng-container>
+        <ng-container matColumnDef="commentaires"><th mat-header-cell *matHeaderCellDef mat-sort-header>Commentaires</th><td mat-cell *matCellDef="let c" class="cellule-commentaires" [matTooltip]="c.commentaires">{{ (c.commentaires && c.commentaires.length > 40) ? (c.commentaires | slice:0:40) + '...' : c.commentaires || '-' }}</td></ng-container>
+        <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef>Actions</th><td mat-cell *matCellDef="let c"><button mat-icon-button color="primary" (click)="ouvrirDialogModification(c, $event)" matTooltip="Modifier"><mat-icon>edit</mat-icon></button><button mat-icon-button color="warn" (click)="supprimerCandidature(c, $event)" matTooltip="Supprimer"><mat-icon>delete_outline</mat-icon></button></td></ng-container>
+
+        <tr mat-row
+        *matRowDef="let row; columns: colonnesAffichees"
+        [attr.data-track]="trackByCandidature(0, row)"
+        (click)="voirDetailsCandidature(row)"
+        class="ligne-cliquable"
+        [ngClass]="{'ligne-rappel-urgent': getStatutRappel(row) === 'urgent', 'ligne-rappel-aujourdhui': getStatutRappel(row) === 'aujourdhui'}"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell cellule-pas-de-donnees" [attr.colspan]="colonnesAffichees.length">
+            <div class="message-pas-de-donnees">
+              <mat-icon>search_off</mat-icon>
+              <p *ngIf="inputRecherche.value">Aucune candidature trouvée pour "{{inputRecherche.value}}" avec les filtres.</p>
+              <p *ngIf="!inputRecherche.value && filtresActifs()">Aucune candidature pour les filtres sélectionnés.</p>
+              <p *ngIf="!inputRecherche.value && !filtresActifs()">Aucune candidature. Ajoutez-en une !</p>
+              <button mat-stroked-button color="primary" (click)="reinitialiserTousLesFiltres()" *ngIf="filtresActifs() || inputRecherche.value">
+                <mat-icon>clear_all</mat-icon> Réinitialiser
+              </button>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
     <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
   </div>
+
   <footer class="section-legende-aide">
     <h3>Légende des réponses</h3>
     <div class="legendes">

@@ -1,0 +1,366 @@
+// src/app/components/candidature-card/candidature-card.component.scss
+.candidature-card {
+  position: relative;
+  margin-bottom: 12px;
+  cursor: grab;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-left: 4px solid transparent;
+  max-width: 100%;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+
+    .quick-actions-btn {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &.urgent {
+    border-left-color: #f44336;
+    .card-header {
+      background: linear-gradient(90deg, rgba(244, 67, 54, 0.05) 0%, rgba(244, 67, 54, 0.02) 100%);
+    }
+  }
+
+  &.overdue {
+    border-left-color: #ff5722;
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.2);
+
+    .card-header {
+      background: linear-gradient(90deg, rgba(255, 87, 34, 0.08) 0%, rgba(255, 87, 34, 0.03) 100%);
+    }
+  }
+
+  // Animation pendant le drag
+  &.cdk-drag-preview {
+    box-shadow: 0 16px 32px rgba(0,0,0,0.2);
+    transform: rotate(2deg);
+    border-left-width: 6px;
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0.3;
+    transform: scale(0.95);
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 16px 8px 16px;
+  border-radius: 4px 4px 0 0;
+
+  .entreprise-info {
+    flex: 1;
+    min-width: 0; // Pour permettre le text-overflow
+  }
+
+  .entreprise-name {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #1a1a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-badges {
+    mat-chip-set {
+      gap: 4px;
+    }
+
+    .type-chip {
+      font-size: 0.75em;
+      height: 24px;
+
+      &.job {
+        background-color: #e3f2fd;
+        color: #1976d2;
+
+        mat-icon {
+          color: #1976d2;
+        }
+      }
+
+      &.stage {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+
+        mat-icon {
+          color: #7b1fa2;
+        }
+      }
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+      }
+    }
+
+    .urgent-chip {
+      background-color: #ffebee;
+      color: #d32f2f;
+      font-size: 0.7em;
+      height: 22px;
+      animation: pulse 2s infinite;
+
+      mat-icon {
+        color: #d32f2f;
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        margin-right: 2px;
+      }
+    }
+  }
+
+  .quick-actions-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+}
+
+.card-content {
+  padding: 0 16px 16px 16px;
+}
+
+.poste-title {
+  font-size: 1em;
+  font-weight: 500;
+  margin: 0 0 12px 0;
+  color: #333;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.85em;
+    color: #666;
+
+    .info-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+      color: #999;
+    }
+
+    span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.priority-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  .priority-label {
+    font-size: 0.85em;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .priority-stars {
+    display: flex;
+    gap: 2px;
+
+    .priority-star {
+      font-size: 18px;
+      color: #ddd;
+      transition: color 0.2s ease;
+
+      &.active {
+        color: #ffc107;
+      }
+    }
+  }
+}
+
+.progress-section {
+  margin-bottom: 12px;
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 4px;
+
+    .progress-percentage {
+      font-weight: 500;
+      color: #333;
+    }
+  }
+
+  mat-progress-bar {
+    height: 6px;
+    border-radius: 3px;
+
+    ::ng-deep .mdc-linear-progress__bar-inner {
+      border-radius: 3px;
+    }
+  }
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8em;
+
+  .source-info {
+    display: flex;
+    align-items: center;
+    color: #777;
+
+    .source-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      margin-right: 4px;
+    }
+
+    .source-text {
+      font-size: 0.9em;
+    }
+  }
+
+  .reminder-info {
+    display: flex;
+    align-items: center;
+    color: #666;
+
+    &.reminder-urgent {
+      color: #d32f2f;
+      font-weight: 500;
+      animation: pulse 2s infinite;
+    }
+
+    .reminder-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      margin-right: 4px;
+
+      &.reminder-urgent {
+        color: #d32f2f;
+      }
+    }
+
+    .reminder-text {
+      font-size: 0.9em;
+
+      &.reminder-urgent {
+        color: #d32f2f;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.drag-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(63, 81, 181, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  border-radius: 4px;
+
+  &.dragging {
+    opacity: 1;
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .candidature-card {
+    margin-bottom: 8px;
+
+    .card-header {
+      padding: 12px 12px 6px 12px;
+
+      .entreprise-name {
+        font-size: 1.1em;
+      }
+    }
+
+    .card-content {
+      padding: 0 12px 12px 12px;
+    }
+
+    .card-info .info-item {
+      font-size: 0.8em;
+
+      .info-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        margin-right: 6px;
+      }
+    }
+
+    .quick-actions-btn {
+      opacity: 1; // Toujours visible sur mobile
+    }
+  }
+}
+
+// Style pour le menu contextuel
+.mat-mdc-menu-panel {
+  max-width: 280px !important;
+
+  .mat-mdc-menu-item {
+    .mat-icon {
+      margin-right: 12px;
+    }
+  }
+}

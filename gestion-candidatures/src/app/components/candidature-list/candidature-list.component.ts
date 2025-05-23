@@ -1,8 +1,8 @@
-// src/app/components/candidature-list/candidature-list.component.ts
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ElementRef, effect, WritableSignal, signal, computed, Signal } from '@angular/core';
+// src/app/components/candidature-list/candidature-list.component.ts - VERSION FINALE CORRIGÉE
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ElementRef, ChangeDetectorRef, signal, computed, WritableSignal, Signal, Injectable } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
@@ -57,6 +57,7 @@ interface StatistiquesCandidatures {
   regionStatsTop: TopStatItem[];
 }
 
+@Injectable()
 export class MatPaginatorIntlFr extends MatPaginatorIntl {
   override itemsPerPageLabel = 'Éléments par page :';
   override nextPageLabel = 'Page suivante';
@@ -95,9 +96,6 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
   dataSource: MatTableDataSource<Candidature>;
   private queryParamsSubscription!: Subscription;
 
-  // Flag pour éviter les boucles d'appel de filtres
-  private isUpdatingFilters = false;
-
   filtreType: string = '';
   filtreReponse: string = '';
   filtreDate: Date | null = null;
@@ -121,8 +119,11 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
     private datePipe: DatePipe,
     private dateAdapter: DateAdapter<Date>,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {
+    console.log('🔧 CandidatureListComponent constructor - début');
+
     this.dataSource = new MatTableDataSource<Candidature>([]);
     this.dateAdapter.setLocale('fr-FR');
     this.today.setHours(0, 0, 0, 0);
@@ -131,35 +132,13 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
       !!(this.valeurFiltreGlobal || this.filtreType || this.filtreReponse || this.filtreDate || this.filtreRappelAujourdhui)
     );
 
-    // Effect optimisé : séparer la mise à jour des données de l'application des filtres
-    effect(() => {
-      const candidaturesData = this.candidatureService.candidatures();
-
-      // Éviter les boucles en vérifiant si on est déjà en train de mettre à jour
-      if (!this.isUpdatingFilters) {
-        this.isUpdatingFilters = true;
-
-        // Mettre à jour les données
-        this.dataSource.data = candidaturesData;
-
-        // Calculer les statistiques seulement si nécessaire
-        if (this.afficherStats()) { // afficherStats() est un signal, l'appel est correct
-          this.calculerStatistiques();
-        }
-
-        // Réappliquer les filtres.
-        // La vérification if (this.dataSource.filterPredicate) a été retirée
-        // car filterPredicate est toujours défini pour MatTableDataSource.
-        // Utiliser setTimeout pour éviter les mises à jour synchrones dans l'effect
-        setTimeout(() => {
-          this.appliquerFiltres();
-          this.isUpdatingFilters = false;
-        }, 0);
-      }
-    });
+    console.log('🔧 CandidatureListComponent constructor - fin');
   }
 
   ngOnInit(): void {
+    console.log('🔧 CandidatureListComponent ngOnInit - début');
+
+    // Charger les paramètres de requête
     this.queryParamsSubscription = this.activatedRoute.queryParamMap.pipe(take(1)).subscribe(params => {
       const typeParam = params.get('type');
       const reponseParam = params.get('reponse');
@@ -169,23 +148,66 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
       if (reponseParam) this.filtreReponse = reponseParam;
       if (rappelParam === 'aujourdhui') this.filtreRappelAujourdhui = true;
     });
+
+    // Charger les données
+    this.loadCandidatures();
+
+    console.log('🔧 CandidatureListComponent ngOnInit - fin');
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-    this.dataSource.filterPredicate = this.creerFiltreCombine();
+    console.log('🔧 CandidatureListComponent ngAfterViewInit - début');
 
-    // Appliquer les filtres initiaux après l'initialisation complète
-    // Cette vérification est utile pour éviter un double appel si l'effect s'exécute aussi à l'init.
-    if (!this.isUpdatingFilters) {
-        this.appliquerFiltres();
-    }
+    // Configuration des composants Angular Material
+    setTimeout(() => {
+      if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+        console.log('✅ Paginator configuré');
+      }
+
+      if (this.sort) {
+        this.dataSource.sort = this.sort;
+        console.log('✅ Sort configuré');
+      }
+
+      // Configuration du filtre personnalisé
+      this.dataSource.filterPredicate = this.creerFiltreCombine();
+
+      // Appliquer les filtres initiaux
+      this.appliquerFiltres();
+
+      console.log('🔧 CandidatureListComponent ngAfterViewInit - fin');
+    }, 0);
   }
 
   ngOnDestroy(): void {
     if (this.queryParamsSubscription) {
       this.queryParamsSubscription.unsubscribe();
+    }
+  }
+
+  private loadCandidatures(): void {
+    console.log('🔄 Chargement des candidatures...');
+
+    try {
+      // Obtenir les candidatures du service
+      const candidatures = this.candidatureService.getAllCandidatures();
+      console.log('📊 Candidatures obtenues du service:', candidatures.length, candidatures);
+
+      // Mettre à jour le dataSource
+      this.dataSource.data = candidatures;
+      console.log('📊 DataSource mis à jour, length:', this.dataSource.data.length);
+
+      // Calculer les statistiques si nécessaire
+      if (this.afficherStats()) {
+        this.calculerStatistiques();
+      }
+
+      this.afficherMessage(`${candidatures.length} candidature(s) chargée(s)`, 'success-snackbar');
+
+    } catch (error) {
+      console.error('❌ Erreur lors du chargement:', error);
+      this.afficherMessage('Erreur lors du chargement des candidatures', 'warn-snackbar');
     }
   }
 
@@ -196,7 +218,7 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
 
   // TrackBy function pour les statistiques
   trackByStatItem(index: number, item: TopStatItem): string {
-    return item.nom; // Utiliser une propriété unique et stable de l'item
+    return item.nom;
   }
 
   voirDetailsCandidature(candidature: Candidature): void {
@@ -219,13 +241,6 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   appliquerFiltres(): void {
-    // Si la mise à jour des filtres est déjà en cours (par exemple, via l'effect),
-    // on pourrait vouloir éviter cet appel direct pour ne pas interférer.
-    // Cependant, l'appel dans l'effect est dans un setTimeout, donc il est asynchrone.
-    // Le flag isUpdatingFilters est surtout pour l'effect lui-même.
-    // Pour les appels directs (depuis les inputs, selects), on veut que le filtre s'applique.
-    // if (this.isUpdatingFilters) return; // Cette ligne est probablement trop restrictive ici.
-
     this.dataSource.filter = JSON.stringify({
         global: this.valeurFiltreGlobal,
         type: this.filtreType,
@@ -288,7 +303,11 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
       width: 'clamp(300px, 90vw, 800px)', maxWidth: '95vw', data: { candidature: null }
     });
     dialogRef.afterClosed().subscribe(result => {
-      if (result) { this.candidatureService.addCandidature(result); this.afficherMessage('Candidature ajoutée !', 'success-snackbar'); }
+      if (result) {
+        this.candidatureService.addCandidature(result);
+        this.loadCandidatures();
+        this.afficherMessage('Candidature ajoutée !', 'success-snackbar');
+      }
     });
   }
 
@@ -298,7 +317,11 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
       width: 'clamp(300px, 90vw, 800px)', maxWidth: '95vw', data: { candidature: { ...candidature } }
     });
     dialogRef.afterClosed().subscribe(result => {
-      if (result) { this.candidatureService.updateCandidature(result); this.afficherMessage('Candidature mise à jour.', 'success-snackbar'); }
+      if (result) {
+        this.candidatureService.updateCandidature(result);
+        this.loadCandidatures();
+        this.afficherMessage('Candidature mise à jour.', 'success-snackbar');
+      }
     });
   }
 
@@ -308,7 +331,11 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
       width: '380px', data: { title: 'Confirmer suppression', message: `Supprimer la candidature pour ${candidature.entreprise} ?`, confirmText: 'Supprimer', cancelText: 'Annuler', color: 'warn' }
     });
     dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) { this.candidatureService.deleteCandidature(candidature.id); this.afficherMessage('Candidature supprimée.', 'warn-snackbar'); }
+      if (confirmed) {
+        this.candidatureService.deleteCandidature(candidature.id);
+        this.loadCandidatures();
+        this.afficherMessage('Candidature supprimée.', 'warn-snackbar');
+      }
     });
   }
 
@@ -322,6 +349,7 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
       if (nouvelleDate instanceof Date) {
         const dateFormatee = this.formatDatePourComparaison(nouvelleDate);
         this.candidatureService.updateDate(candidature.id, dateFormatee);
+        this.loadCandidatures();
         this.afficherMessage('Date de candidature mise à jour.');
       }
     });
@@ -330,17 +358,22 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
   ouvrirDialogModificationRappel(candidature: Candidature, event: MouseEvent): void {
     event.stopPropagation();
     const dialogRef = this.dialog.open(CandidatureDialogComponent, {
-      width: 'clamp(300px, 90vw, 800px)', maxWidth: '95vw', data: { candidature: { ...candidature } } // On passe la candidature complète
+      width: 'clamp(300px, 90vw, 800px)', maxWidth: '95vw', data: { candidature: { ...candidature } }
     });
     dialogRef.afterClosed().subscribe(result => {
-      if (result) { this.candidatureService.updateCandidature(result); this.afficherMessage('Rappel de candidature mis à jour.', 'success-snackbar'); }
+      if (result) {
+        this.candidatureService.updateCandidature(result);
+        this.loadCandidatures();
+        this.afficherMessage('Rappel de candidature mis à jour.', 'success-snackbar');
+      }
     });
   }
 
   basculerTypeCandidature(candidature: Candidature, event: MouseEvent): void {
     event.stopPropagation();
     this.candidatureService.toggleType(candidature.id);
-    const updatedCandidature = this.candidatureService.candidatures().find(c => c.id === candidature.id);
+    this.loadCandidatures();
+    const updatedCandidature = this.candidatureService.getAllCandidatures().find(c => c.id === candidature.id);
     this.afficherMessage(`Type changé en "${updatedCandidature?.type}" pour ${candidature.entreprise}.`);
   }
 
@@ -361,11 +394,11 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
     if (!dateRappel) return 'aucun';
     dateRappel.setHours(0,0,0,0);
 
-    const todayMidnight = new Date(this.today); // this.today est déjà normalisé
+    const todayMidnight = new Date(this.today);
 
     if (dateRappel < todayMidnight) return 'urgent';
     if (dateRappel.getTime() === todayMidnight.getTime()) return 'aujourdhui';
-    return 'aucun'; // ou 'prochainement' si besoin de distinguer les rappels futurs non-urgents
+    return 'aucun';
   }
 
   private parseDateFr(dateStr: string | undefined): Date | null {
@@ -403,7 +436,7 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   calculerStatistiques(): void {
-    const candidatures = this.candidatureService.candidatures();
+    const candidatures = this.candidatureService.getAllCandidatures();
     const total = candidatures.length;
 
     if (total === 0) {

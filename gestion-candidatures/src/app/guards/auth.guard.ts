@@ -1,43 +1,62 @@
-// src/app/guards/auth.guard.ts
-import { Injectable, inject } from '@angular/core'; // inject pour une injection plus moderne
+// src/app/guards/auth.guard.ts - VERSION AVEC DEBUG AMÉLIORÉ
+import { Injectable, inject } from '@angular/core';
 import {
-  CanActivateFn, // Utiliser CanActivateFn pour les guards fonctionnels
+  CanActivateFn,
   ActivatedRouteSnapshot,
   RouterStateSnapshot,
   UrlTree,
   Router
 } from '@angular/router';
-// Observable n'est plus nécessaire si on lit directement les signals
 import { AuthService } from '../services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-// Approche fonctionnelle pour le guard, plus moderne avec Angular 15+
 export const authGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ): boolean | UrlTree => {
-  const authService = inject(AuthService); // Nouvelle manière d'injecter dans les guards fonctionnels
+  const authService = inject(AuthService);
   const router = inject(Router);
   const snackBar = inject(MatSnackBar);
 
-  const expectedRoles = route.data['roles'] as Array<string> | undefined;
+  console.log('🔧 AuthGuard: Vérification d\'accès pour:', state.url);
 
-  // Lire directement la valeur du signal isAuthenticated
-  if (!authService.isAuthenticated()) {
-    console.log('AuthGuard: Utilisateur non authentifié, redirection vers /login');
+  const expectedRoles = route.data['roles'] as Array<string> | undefined;
+  console.log('🔧 AuthGuard: Rôles requis:', expectedRoles);
+
+  // Vérifier l'authentification
+  const isAuth = authService.isAuthenticated();
+  const currentUser = authService.currentUser();
+  const token = authService.getToken();
+
+  console.log('🔧 AuthGuard: État authentification:', {
+    isAuthenticated: isAuth,
+    hasUser: !!currentUser,
+    hasToken: !!token,
+    userEmail: currentUser?.email
+  });
+
+  if (!isAuth) {
+    console.log('❌ AuthGuard: Utilisateur non authentifié, redirection vers /login');
     snackBar.open('Veuillez vous connecter pour accéder à cette page.', 'Fermer', { duration: 3000 });
     return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
   }
 
   // Si la route nécessite des rôles spécifiques
   if (expectedRoles && expectedRoles.length > 0) {
-    const userRoles = authService.userRoles(); // Lire directement la valeur du signal userRoles
+    const userRoles = authService.userRoles();
+    console.log('🔧 AuthGuard: Vérification des rôles:', {
+      expectedRoles,
+      userRoles,
+      hasRequiredRole: userRoles ? expectedRoles.some(role => userRoles.includes(role)) : false
+    });
+
     if (!userRoles || !expectedRoles.some(role => userRoles.includes(role))) {
-      console.log(`AuthGuard: Accès refusé. Rôles requis: ${expectedRoles.join(', ')}, Rôles utilisateur: ${userRoles?.join(', ') || 'aucun'}`);
+      console.log(`❌ AuthGuard: Accès refusé. Rôles requis: ${expectedRoles.join(', ')}, Rôles utilisateur: ${userRoles?.join(', ') || 'aucun'}`);
       snackBar.open('Vous n\'avez pas les droits nécessaires pour accéder à cette page.', 'Fermer', { duration: 5000 });
-      return router.createUrlTree(['/']); // Ou une page '/access-denied'
+      return router.createUrlTree(['/']);
     }
   }
 
-  return true; // L'utilisateur est authentifié et a les rôles requis
+  console.log('✅ AuthGuard: Accès autorisé pour:', state.url);
+  return true;
 };

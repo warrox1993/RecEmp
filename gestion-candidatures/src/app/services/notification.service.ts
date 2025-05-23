@@ -1,9 +1,7 @@
-// src/app/services/notification.service.ts - VERSION QUI FONCTIONNE
+// src/app/services/notification.service.ts - VERSION SIMPLIFIÉE
 import { Injectable, signal, computed, WritableSignal, Signal } from '@angular/core';
 import { AppNotification } from '../models/notification.model';
 import { Reminder } from '../models/reminder.model';
-import { CandidatureService } from './candidature.service';
-import { Candidature } from '../models/candidature.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,53 +17,11 @@ export class NotificationService {
   public readonly reminders: Signal<Reminder[]> = this._reminders.asReadonly();
 
   private readonly REMINDERS_STORAGE_KEY = 'protrack_cv_reminders';
-  private initialized = false;
 
-  constructor(private candidatureService: CandidatureService) {
-    console.log('🔧 NotificationService constructor - début');
-
-    // Initialisation différée mais SANS l'effect problématique
-    setTimeout(() => this.initializeService(), 0);
-
-    console.log('🔧 NotificationService constructor - fin');
-  }
-
-  private initializeService(): void {
-    if (this.initialized) return;
-    this.initialized = true;
-
-    console.log('🔧 NotificationService: Initialisation différée...');
-
-    try {
-      this.loadRemindersFromStorage();
-      console.log('✅ Reminders loaded from storage');
-
-      // TEMPORAIREMENT DÉSACTIVÉ pour éviter l'erreur NG0203
-      // On réactivera l'effect plus tard quand on aura trouvé la bonne solution
-      /*
-      effect(() => {
-        try {
-          if (!this.candidatureService || !this.candidatureService.candidatures) {
-            console.log('⚠️ CandidatureService pas encore prêt, report...');
-            return;
-          }
-
-          const currentCandidatures = this.candidatureService.candidatures();
-          console.log('NotificationService Effect: candidatures changed, count:', currentCandidatures.length);
-
-          this.updateCandidatureReminders(currentCandidatures);
-          this.generateNotificationsFromReminders();
-          this.saveRemindersToStorage();
-        } catch (error) {
-          console.error('❌ Erreur dans effect NotificationService:', error);
-        }
-      }, { allowSignalWrites: true });
-      */
-
-      console.log('✅ NotificationService initialized successfully (sans effect temporairement)');
-    } catch (error) {
-      console.error('❌ Erreur lors de l\'initialisation NotificationService:', error);
-    }
+  constructor() {
+    console.log('🔧 NotificationService constructor - version simplifiée');
+    this.loadRemindersFromStorage();
+    this.initializeWithDefaultNotifications();
   }
 
   private loadRemindersFromStorage(): void {
@@ -97,23 +53,20 @@ export class NotificationService {
     }
   }
 
-  private updateCandidatureReminders(candidatures: Candidature[]): void {
-    try {
-      // Pour l'instant, on ne fait rien pour éviter les erreurs
-      // Cette méthode sera activée plus tard
-      console.log('🔧 updateCandidatureReminders appelé avec', candidatures.length, 'candidatures');
-    } catch (error) {
-      console.error('❌ Erreur lors de la mise à jour des rappels:', error);
-    }
-  }
+  private initializeWithDefaultNotifications(): void {
+    // Ajouter quelques notifications par défaut pour tester
+    const defaultNotifications: AppNotification[] = [
+      {
+        id: 'welcome',
+        type: 'info',
+        title: 'Bienvenue sur ProTrack CV !',
+        message: 'Votre outil de suivi de candidatures est prêt.',
+        date: new Date(),
+        isRead: false
+      }
+    ];
 
-  private generateNotificationsFromReminders(): void {
-    try {
-      // Pour l'instant, on ne fait rien pour éviter les erreurs
-      console.log('🔧 generateNotificationsFromReminders appelé');
-    } catch (error) {
-      console.error('❌ Erreur lors de la génération des notifications:', error);
-    }
+    this._notifications.set(defaultNotifications);
   }
 
   // Méthodes essentielles
@@ -131,30 +84,75 @@ export class NotificationService {
     );
   }
 
-  // Méthodes basiques pour éviter les erreurs
-  addManualReminder(data: any): any {
-    console.log('🔧 addManualReminder appelé (temporaire)');
-    return { id: 'temp', title: 'temp' };
+  addManualReminder(data: { title: string; description?: string; reminderDate: Date }): Reminder {
+    const newReminder: Reminder = {
+      id: Date.now().toString(),
+      title: data.title,
+      description: data.description,
+      reminderDate: data.reminderDate,
+      type: 'manuel',
+      isCompleted: false,
+      createdAt: new Date(),
+      notificationGenerated: false
+    };
+
+    this._reminders.update(reminders => [...reminders, newReminder]);
+    this.saveRemindersToStorage();
+
+    console.log('✅ Rappel manuel ajouté:', newReminder.title);
+    return newReminder;
   }
 
   completeReminder(reminderId: string, completed: boolean = true): void {
-    console.log('🔧 completeReminder appelé (temporaire)');
+    this._reminders.update(reminders =>
+      reminders.map(r =>
+        r.id === reminderId ? { ...r, isCompleted: completed } : r
+      )
+    );
+    this.saveRemindersToStorage();
+    console.log('✅ Rappel marqué comme complété:', reminderId);
   }
 
   deleteReminder(reminderId: string): void {
-    console.log('🔧 deleteReminder appelé (temporaire)');
+    this._reminders.update(reminders =>
+      reminders.filter(r => r.id !== reminderId)
+    );
+    this.saveRemindersToStorage();
+    console.log('✅ Rappel supprimé:', reminderId);
   }
 
-  addSystemNotification(notificationData: any): any {
-    console.log('🔧 addSystemNotification appelé (temporaire)');
-    return { id: 'temp' };
+  addSystemNotification(notificationData: {
+    type: AppNotification['type'];
+    title: string;
+    message: string;
+    link?: string;
+    candidatureId?: number;
+  }): AppNotification {
+    const newNotification: AppNotification = {
+      id: Date.now().toString(),
+      type: notificationData.type,
+      title: notificationData.title,
+      message: notificationData.message,
+      date: new Date(),
+      isRead: false,
+      link: notificationData.link,
+      candidatureId: notificationData.candidatureId
+    };
+
+    this._notifications.update(notifications => [newNotification, ...notifications]);
+    console.log('✅ Notification système ajoutée:', newNotification.title);
+    return newNotification;
   }
 
   removeNotification(notificationId: string): void {
-    console.log('🔧 removeNotification appelé (temporaire)');
+    this._notifications.update(notifications =>
+      notifications.filter(n => n.id !== notificationId)
+    );
   }
 
   refreshNotifications(): void {
-    console.log('🔧 refreshNotifications appelé (temporaire)');
+    console.log('🔧 Rafraîchissement des notifications...');
+    // Pour l'instant, on ne fait qu'un log
+    // Cette méthode pourrait être étendue pour synchroniser avec un serveur
   }
 }
