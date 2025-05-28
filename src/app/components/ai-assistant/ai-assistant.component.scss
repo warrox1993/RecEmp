@@ -1,0 +1,347 @@
+// src/app/components/ai-assistant/ai-assistant.component.scss
+.ai-assistant-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ai-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    font-size: 1.4em;
+    font-weight: 600;
+
+    mat-icon {
+      margin-right: 12px;
+      font-size: 1.3em;
+    }
+  }
+
+  button[mat-icon-button] {
+    color: white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.automation-status {
+  .task-item {
+    margin-bottom: 16px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .task-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .task-name {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .task-status {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: 600;
+        text-transform: uppercase;
+
+        &.status-pending { background: #fff3cd; color: #856404; }
+        &.status-running { background: #d1ecf1; color: #0c5460; }
+        &.status-completed { background: #d4edda; color: #155724; }
+        &.status-failed { background: #f8d7da; color: #721c24; }
+      }
+    }
+
+    mat-progress-bar {
+      height: 6px;
+      border-radius: 3px;
+    }
+  }
+}
+
+.ai-chat {
+  .messages-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 16px 0;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 16px;
+
+    .message {
+      display: flex;
+      margin-bottom: 16px;
+      animation: fadeInUp 0.3s ease;
+
+      &.user-message {
+        flex-direction: row-reverse;
+
+        .message-content {
+          background: #007bff;
+          color: white;
+          margin-right: 12px;
+          margin-left: 0;
+        }
+
+        .message-avatar {
+          background: #007bff;
+        }
+      }
+
+      &.ai-message {
+        .message-content {
+          background: #f8f9fa;
+          color: #333;
+          margin-left: 12px;
+        }
+
+        .message-avatar {
+          background: #6c757d;
+        }
+      }
+
+      .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        mat-icon {
+          color: white;
+          font-size: 20px;
+        }
+      }
+
+      .message-content {
+        max-width: 70%;
+        padding: 12px 16px;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+        p {
+          margin: 0 0 8px 0;
+          line-height: 1.4;
+        }
+
+        .message-time {
+          font-size: 0.8em;
+          opacity: 0.7;
+        }
+      }
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      color: #6c757d;
+      font-style: italic;
+      margin-left: 52px;
+
+      mat-icon {
+        margin-right: 8px;
+        font-size: 20px;
+      }
+
+      .typing-dots {
+        margin-left: 8px;
+        display: flex;
+        gap: 4px;
+
+        span {
+          width: 6px;
+          height: 6px;
+          background: #6c757d;
+          border-radius: 50%;
+          animation: typing 1.4s infinite;
+
+          &:nth-child(2) { animation-delay: 0.2s; }
+          &:nth-child(3) { animation-delay: 0.4s; }
+        }
+      }
+    }
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+
+      &:hover {
+        background: #a8a8a8;
+      }
+    }
+  }
+
+  .message-input {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+
+    .input-field {
+      flex: 1;
+    }
+
+    button[mat-fab] {
+      width: 48px;
+      height: 48px;
+
+      &:disabled {
+        opacity: 0.6;
+      }
+    }
+  }
+}
+
+.quick-suggestions {
+  mat-chip-set {
+    gap: 8px;
+  }
+
+  mat-chip {
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &.priority-high {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+
+    &.priority-medium {
+      background: #fff3e0;
+      color: #ef6c00;
+      border: 1px solid #ffcc02;
+    }
+
+    &.priority-low {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
+    }
+  }
+}
+
+// Animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .ai-assistant-container {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .ai-header {
+    padding: 12px 16px;
+
+    h2 {
+      font-size: 1.2em;
+    }
+  }
+
+  .ai-chat {
+    .messages-container {
+      max-height: 300px;
+
+      .message {
+        .message-content {
+          max-width: 85%;
+        }
+      }
+    }
+
+    .message-input {
+      flex-direction: column;
+      align-items: stretch;
+
+      button[mat-fab] {
+        align-self: flex-end;
+        margin-top: 8px;
+      }
+    }
+  }
+
+  .quick-suggestions {
+    mat-chip-set {
+      flex-wrap: wrap;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .automation-status,
+  .ai-chat,
+  .quick-suggestions {
+    background: #2d2d2d;
+    color: #ffffff;
+
+    .task-status {
+      &.status-pending { background: #6c4a00; color: #fff3cd; }
+      &.status-running { background: #004085; color: #d1ecf1; }
+      &.status-completed { background: #155724; color: #d4edda; }
+      &.status-failed { background: #721c24; color: #f8d7da; }
+    }
+  }
+
+  .ai-chat .messages-container .message {
+    &.ai-message .message-content {
+      background: #404040;
+      color: #ffffff;
+    }
+  }
+}

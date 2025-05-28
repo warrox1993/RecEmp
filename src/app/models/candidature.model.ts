@@ -1,5 +1,3 @@
-// src/app/models/candidature.model.ts - MISE À JOUR POUR KANBAN
-
 export interface Candidature {
   id: number; // Identifiant unique de la candidature
   date: string; // Date de la candidature (format JJ/MM/AAAA)

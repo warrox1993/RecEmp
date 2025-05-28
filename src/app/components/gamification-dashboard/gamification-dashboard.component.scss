@@ -1,0 +1,317 @@
+// src/app/components/gamification-dashboard/gamification-dashboard.component.scss
+.gamification-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stats-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+
+  .mat-mdc-card-header {
+    .mat-mdc-card-title {
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      mat-icon {
+        font-size: 1.5em;
+      }
+    }
+  }
+
+  .user-level {
+    text-align: center;
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0 0 16px 0;
+      font-size: 2.5em;
+      font-weight: 700;
+    }
+
+    mat-progress-bar {
+      height: 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+
+      ::ng-deep .mdc-linear-progress__bar-inner {
+        border-radius: 6px;
+      }
+    }
+
+    p {
+      margin: 0;
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+
+    .stat-item {
+      text-align: center;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+
+      mat-icon {
+        font-size: 2em;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .stat-value {
+        display: block;
+        font-size: 1.8em;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        font-size: 0.9em;
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+.achievements-card {
+  .achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+
+    .achievement-item {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+
+      &.unlocked {
+        border-color: #4caf50;
+        background: rgba(76, 175, 80, 0.05);
+
+        .achievement-icon mat-icon {
+          color: #4caf50;
+        }
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .achievement-icon {
+        margin-right: 16px;
+
+        mat-icon {
+          font-size: 2.5em;
+          width: 2.5em;
+          height: 2.5em;
+        }
+      }
+
+      .achievement-info {
+        flex: 1;
+
+        h4 {
+          margin: 0 0 8px 0;
+          font-size: 1.1em;
+          font-weight: 600;
+        }
+
+        p {
+          margin: 0 0 8px 0;
+          color: #666;
+          font-size: 0.9em;
+        }
+
+        mat-progress-bar {
+          height: 6px;
+          border-radius: 3px;
+          margin-bottom: 4px;
+        }
+
+        .progress-text {
+          font-size: 0.8em;
+          color: #888;
+        }
+      }
+    }
+  }
+}
+
+.challenges-card {
+  .challenges-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .challenge-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      background: #fafafa;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #3f51b5;
+        box-shadow: 0 2px 8px rgba(63, 81, 181, 0.1);
+      }
+
+      .challenge-info {
+        flex: 1;
+        margin-right: 16px;
+
+        h4 {
+          margin: 0 0 8px 0;
+          font-size: 1.2em;
+          font-weight: 600;
+          color: #333;
+        }
+
+        p {
+          margin: 0 0 8px 0;
+          color: #666;
+
+          &.challenge-reward {
+            color: #ff9800;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          &.challenge-deadline {
+            color: #f44336;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+        }
+      }
+
+      // ✅ CORRECTION - Styles pour les chips avec classes CSS
+      mat-chip {
+        margin-right: 12px;
+
+        &.selected {
+          background-color: #e3f2fd;
+          color: #1976d2;
+        }
+
+        &.completed {
+          background-color: #e8f5e9;
+          color: #388e3c;
+        }
+      }
+
+      button {
+        min-width: 120px;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .gamification-container {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .stats-card {
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  .achievements-card {
+    .achievements-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .achievement-item {
+      flex-direction: column;
+      text-align: center;
+
+      .achievement-icon {
+        margin-right: 0;
+        margin-bottom: 12px;
+      }
+    }
+  }
+
+  .challenges-card {
+    .challenge-item {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+
+      .challenge-info {
+        margin-right: 0;
+      }
+
+      mat-chip {
+        align-self: center;
+        margin-right: 0;
+        margin-bottom: 8px;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes levelUp {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.user-level h2 {
+  animation: levelUp 0.6s ease-in-out;
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .achievements-card,
+  .challenges-card {
+    background: #2d2d2d;
+    color: #ffffff;
+
+    .achievement-item,
+    .challenge-item {
+      background: #404040;
+      border-color: #555;
+      color: #ffffff;
+
+      .achievement-info p,
+      .challenge-info p {
+        color: #cccccc;
+      }
+    }
+  }
+}
