@@ -4,6 +4,7 @@
   max-width: 100%;
   min-height: calc(100vh - 120px);
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow-y: auto;
 }
 
 .kanban-header {
@@ -109,11 +110,11 @@
   }
 }
 
-// MODIFICATION PRINCIPALE : Layout vertical
+// VERSION VERTICALE - Disposition en lignes au lieu de colonnes
 .kanban-board {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   padding-bottom: 40px;
 
   &.loading {
@@ -130,8 +131,8 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  min-height: 120px;
-  max-height: none; // Pas de limite de hauteur en vertical
+  width: 100%;
+  min-height: 200px;
   position: relative;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -141,7 +142,7 @@
     transform: translateY(-2px);
   }
 
-  // Accent coloré à gauche de chaque colonne (au lieu du haut)
+  // Accent coloré à gauche de chaque colonne
   &::before {
     content: '';
     position: absolute;
@@ -155,12 +156,12 @@
 }
 
 .column-header {
-  padding: 16px 20px;
+  padding: 20px 20px 16px 20px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
   display: flex;
   justify-content: space-between;
-  align-items: center; // Alignement horizontal en mode vertical
+  align-items: flex-start;
 
   .column-info {
     flex: 1;
@@ -168,13 +169,13 @@
     .column-title-section {
       display: flex;
       align-items: center;
-      margin-bottom: 4px; // Réduit en vertical
+      margin-bottom: 8px;
 
       mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-        margin-right: 8px;
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+        margin-right: 10px;
       }
 
       h3 {
@@ -195,23 +196,22 @@
         min-width: 24px;
         text-align: center;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        margin-left: 8px;
       }
     }
 
     .column-description {
       margin: 0;
-      font-size: 0.8em;
+      font-size: 0.85em;
       color: #666;
-      line-height: 1.3;
+      line-height: 1.4;
     }
   }
 
   .column-indicators {
     display: flex;
-    flex-direction: row; // Horizontal en mode vertical
-    gap: 8px;
-    align-items: center;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
 
     .conversion-indicator {
       background: rgba(76, 175, 80, 0.1);
@@ -234,18 +234,32 @@
   }
 }
 
+// VERSION VERTICALE - Contenu en grille horizontale
 .column-content {
   flex: 1;
-  padding: 12px 16px;
-  overflow-y: visible; // Pas de scroll en vertical
-  min-height: 80px;
+  padding: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 150px;
 
-  // Amélioration des zones de drop en vertical
+  // Disposition horizontale des cartes pour la version verticale
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+
+  // Styles pour le drop zone
   &.cdk-drop-list-receiving {
     background: rgba(63, 81, 181, 0.05);
-    border: 2px dashed #3f51b5;
-    border-radius: 8px;
-    animation: pulse-border 1s infinite;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 16px;
+      border: 2px dashed #3f51b5;
+      border-radius: 8px;
+      pointer-events: none;
+      animation: pulse-border 1s infinite;
+    }
   }
 
   &.cdk-drop-list-dragging {
@@ -254,9 +268,23 @@
     }
   }
 
-  // Pas de scrollbar en vertical
+  // Custom scrollbar pour le scroll horizontal
   &::-webkit-scrollbar {
-    display: none;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
   }
 }
 
@@ -265,30 +293,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 40px 20px;
   text-align: center;
   color: #999;
-  min-height: 80px; // Plus petit en vertical
+  min-height: 150px;
+  width: 100%;
 
   mat-icon {
-    font-size: 32px;
-    width: 32px;
-    height: 32px;
-    margin-bottom: 8px;
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
     opacity: 0.6;
   }
 
   p {
-    margin: 0 0 12px 0;
-    font-size: 0.85em;
+    margin: 0 0 16px 0;
+    font-size: 0.9em;
     font-style: italic;
   }
 
   .add-first-btn {
     border-color: var(--column-color, #ccc);
     color: var(--column-color, #666);
-    font-size: 0.9em;
-    padding: 8px 16px;
 
     &:hover {
       background: rgba(var(--column-color-rgb, 204, 204, 204), 0.1);
@@ -297,7 +324,7 @@
 }
 
 .column-footer {
-  padding: 8px 16px;
+  padding: 12px 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   background: rgba(248, 249, 250, 0.8);
 
@@ -305,25 +332,31 @@
     width: 100%;
     justify-content: flex-start;
     color: var(--column-color, #666);
-    font-size: 0.85em;
-    padding: 6px 12px;
+    font-size: 0.9em;
 
     &:hover {
       background: rgba(var(--column-color-rgb, 204, 204, 204), 0.1);
     }
 
     mat-icon {
-      margin-right: 6px;
-      font-size: 16px;
+      margin-right: 8px;
+      font-size: 18px;
     }
   }
 }
 
+// VERSION VERTICALE - Cartes ajustées pour la disposition horizontale
 .drag-item {
-  margin-bottom: 8px;
+  flex-shrink: 0;
+  width: 300px; // Largeur fixe pour la disposition horizontale
+  margin-right: 8px;
+
+  &:last-child {
+    margin-right: 0;
+  }
 
   &.cdk-drag-preview {
-    transform: rotate(2deg); // Moins de rotation
+    transform: rotate(5deg);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
     z-index: 1000;
   }
@@ -334,12 +367,14 @@
 
   &.cdk-drag-placeholder {
     opacity: 0;
-    height: 60px; // Plus petit en vertical
+    width: 300px;
+    height: 120px;
     background: rgba(63, 81, 181, 0.1);
     border: 2px dashed #3f51b5;
     border-radius: 8px;
-    margin-bottom: 8px;
+    margin-right: 8px;
     position: relative;
+    flex-shrink: 0;
 
     &::after {
       content: 'Déposer ici';
@@ -348,7 +383,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       color: #3f51b5;
-      font-size: 0.8em;
+      font-size: 0.9em;
       font-weight: 500;
     }
   }
@@ -405,7 +440,7 @@
   }
 }
 
-// Responsive adaptations pour mobile
+// Responsive adaptations pour la version verticale
 @media (max-width: 768px) {
   .kanban-container {
     padding: 12px;
@@ -429,30 +464,46 @@
 
   .kanban-column {
     .column-header {
-      padding: 12px 16px;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
+      padding: 16px;
 
-      .column-info .column-title-section {
+      .column-title-section {
         h3 {
           font-size: 1em;
         }
 
         mat-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
         }
-      }
-
-      .column-indicators {
-        align-self: flex-end;
       }
     }
 
     .column-content {
-      padding: 8px 12px;
+      padding: 12px;
+    }
+  }
+
+  // Pour mobile, retour à une disposition verticale des cartes
+  .column-content {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .drag-item {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.cdk-drag-placeholder {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 8px;
     }
   }
 
@@ -464,20 +515,14 @@
   }
 }
 
-// Améliorations tactiles pour mobile
-@media (hover: none) {
-  .kanban-column:hover {
-    transform: none; // Pas d'effet hover sur tactile
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+// Amélioration pour les très grands écrans
+@media (min-width: 1920px) {
+  .kanban-column {
+    min-height: 250px;
   }
 
   .drag-item {
-    // Zone de drag plus grande sur tactile
-    .candidature-card {
-      min-height: 100px;
-      cursor: grab;
-      touch-action: none;
-    }
+    width: 350px; // Cartes plus larges sur grands écrans
   }
 }
 
@@ -494,28 +539,4 @@
 .mat-mdc-chip {
   --mdc-chip-label-text-font: inherit;
   --mdc-chip-label-text-size: 0.8rem;
-}
-
-// Amélioration pour les grandes listes en vertical
-.kanban-column .column-content {
-  max-height: 400px; // Limite pour éviter des colonnes trop hautes
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 2px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 2px;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.3);
-    }
-  }
 }

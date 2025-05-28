@@ -45,45 +45,15 @@
       <button mat-raised-button color="primary" (click)="ouvrirDialogAjout()">
         <mat-icon>add_circle_outline</mat-icon> Nouvelle candidature
       </button>
-
-      <!-- Menu déroulant pour les actions d'export -->
-      <button mat-raised-button [matMenuTriggerFor]="exportMenu" color="accent" [disabled]="dataSource.data.length === 0">
-        <mat-icon>download</mat-icon> Export
-        <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+      <button mat-raised-button color="accent" (click)="exporterEnCSV()" [disabled]="dataSource.data.length === 0">
+        <mat-icon>download</mat-icon> Exporter en CSV
       </button>
-      <mat-menu #exportMenu="matMenu">
-        <button mat-menu-item (click)="exporterEnCSV()">
-          <mat-icon>description</mat-icon>
-          <span>Export CSV simple</span>
-        </button>
-        <button mat-menu-item (click)="ouvrirDialogExportAvance()">
-          <mat-icon>file_download</mat-icon>
-          <span>Export avancé avec filtres</span>
-        </button>
-      </mat-menu>
-
-      <!-- Menu déroulant pour les actions de gestion -->
-      <button mat-raised-button [matMenuTriggerFor]="gestionMenu" [disabled]="dataSource.data.length === 0">
-        <mat-icon>settings</mat-icon> Gestion
-        <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
-      </button>
-      <mat-menu #gestionMenu="matMenu">
-        <button mat-menu-item (click)="ouvrirDialogArchive()">
-          <mat-icon>archive</mat-icon>
-          <span>Archiver les candidatures</span>
-        </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item (click)="ouvrirDialogSuppressionLot()">
-          <mat-icon>delete_sweep</mat-icon>
-          <span>Suppression en lot</span>
-        </button>
-      </mat-menu>
-
       <button mat-raised-button (click)="basculerAffichageStats()">
         <mat-icon>{{ afficherStats() ? 'visibility_off' : 'insights' }}</mat-icon>
         {{ afficherStats() ? 'Masquer les statistiques' : 'Afficher les statistiques' }}
       </button>
     </section>
+  </header>
 
   <section class="section-statistiques" *ngIf="afficherStats() && statistiques">
     <mat-card>
@@ -145,6 +115,7 @@
         <ng-container matColumnDef="commentaires"><th mat-header-cell *matHeaderCellDef mat-sort-header>Commentaires</th><td mat-cell *matCellDef="let c" class="cellule-commentaires" [matTooltip]="c.commentaires">{{ (c.commentaires && c.commentaires.length > 40) ? (c.commentaires | slice:0:40) + '...' : c.commentaires || '-' }}</td></ng-container>
         <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef>Actions</th><td mat-cell *matCellDef="let c"><button mat-icon-button color="primary" (click)="ouvrirDialogModification(c, $event)" matTooltip="Modifier"><mat-icon>edit</mat-icon></button><button mat-icon-button color="warn" (click)="supprimerCandidature(c, $event)" matTooltip="Supprimer"><mat-icon>delete_outline</mat-icon></button></td></ng-container>
 
+        <tr mat-header-row *matHeaderRowDef="colonnesAffichees"></tr>
         <tr mat-row
         *matRowDef="let row; columns: colonnesAffichees"
         [attr.data-track]="trackByCandidature(0, row)"
