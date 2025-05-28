@@ -1,10 +1,12 @@
-// src/app/components/kanban-board/kanban-board.component.scss - VERSION VERTICALE
+// src/app/components/kanban-board/kanban-board.component.scss
+// VERSION COMPLÈTE AVEC TOUTES LES FONCTIONNALITÉS
+
 .kanban-container {
   padding: 20px;
   max-width: 100%;
   min-height: calc(100vh - 120px);
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  overflow-y: auto;
+  overflow-x: auto;
 }
 
 .kanban-header {
@@ -64,6 +66,18 @@
           margin-right: 4px;
         }
       }
+
+      .urgent-chip {
+        background-color: #ffebee;
+        color: #d32f2f;
+        font-weight: 600;
+        animation: pulse 2s infinite;
+
+        mat-icon {
+          color: #d32f2f;
+          margin-right: 4px;
+        }
+      }
     }
   }
 
@@ -72,6 +86,14 @@
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
+
+    .quick-filter {
+      min-width: 150px;
+
+      .mat-mdc-form-field-infix {
+        min-height: 40px;
+      }
+    }
 
     button {
       min-width: auto;
@@ -83,39 +105,98 @@
   }
 }
 
+// Indicateur de performance amélioré
 .performance-indicator {
   position: relative;
   margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 12px 16px;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  .performance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .performance-label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9em;
+  }
+
+  .performance-value {
+    font-weight: 700;
+    color: #3f51b5;
+    font-size: 1.1em;
+  }
 
   mat-progress-bar {
     height: 8px;
     border-radius: 4px;
+    margin-bottom: 8px;
 
     ::ng-deep .mdc-linear-progress__bar-inner {
       border-radius: 4px;
     }
   }
 
-  .conversion-text {
-    position: absolute;
-    top: 50%;
-    right: 16px;
-    transform: translateY(-50%);
-    font-size: 0.9em;
-    font-weight: 500;
+  .performance-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
     color: #666;
   }
 }
 
-// VERSION VERTICALE - Disposition en lignes au lieu de colonnes
+// Alertes et notifications
+.kanban-alerts {
+  margin-bottom: 20px;
+
+  .alert-card {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border-left: 4px solid #ff9800;
+
+    .alert-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+
+      .alert-icon {
+        font-size: 24px;
+        color: #f57c00;
+        flex-shrink: 0;
+      }
+
+      .alert-text {
+        flex: 1;
+
+        strong {
+          color: #e65100;
+          font-size: 1.1em;
+        }
+
+        p {
+          margin: 4px 0 0 0;
+          color: #bf360c;
+          font-size: 0.9em;
+        }
+      }
+    }
+  }
+}
+
+// Layout horizontal forcé
 .kanban-board {
   display: flex;
-  flex-direction: column;
   gap: 20px;
+  min-height: 600px;
   padding-bottom: 40px;
+  min-width: fit-content;
+  overflow-x: auto;
 
   &.loading {
     opacity: 0.7;
@@ -131,27 +212,45 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  width: 100%;
-  min-height: 200px;
+  max-height: 80vh;
   position: relative;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  min-width: 320px;
+  width: 320px;
+  flex-shrink: 0;
 
   &:hover {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
   }
 
-  // Accent coloré à gauche de chaque colonne
+  // États de limite
+  &.limit-warning {
+    border-color: #ff9800;
+    box-shadow: 0 8px 32px rgba(255, 152, 0, 0.2);
+  }
+
+  &.limit-exceeded {
+    border-color: #f44336;
+    box-shadow: 0 8px 32px rgba(244, 67, 54, 0.3);
+
+    .column-header {
+      background: linear-gradient(135deg, rgba(255, 235, 238, 0.8) 0%, rgba(255, 235, 238, 0.4) 100%);
+    }
+  }
+
+  // Accent coloré en haut
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    bottom: 0;
-    width: 4px;
+    right: 0;
+    height: 4px;
     background: var(--column-color, #ccc);
-    border-radius: 16px 0 0 16px;
+    border-radius: 16px 16px 0 0;
   }
 }
 
@@ -196,14 +295,49 @@
         min-width: 24px;
         text-align: center;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+
+        &.warning {
+          background: #ff9800 !important;
+          animation: pulse-warning 2s infinite;
+        }
+
+        &.error {
+          background: #f44336 !important;
+          animation: pulse-error 2s infinite;
+        }
       }
     }
 
     .column-description {
-      margin: 0;
+      margin: 0 0 12px 0;
       font-size: 0.85em;
       color: #666;
       line-height: 1.4;
+    }
+
+    // Métriques de colonne
+    .column-metrics {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+
+      .metric-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 0.75em;
+        color: #666;
+
+        mat-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
+      }
     }
   }
 
@@ -213,39 +347,33 @@
     gap: 4px;
     align-items: flex-end;
 
-    .conversion-indicator {
-      background: rgba(76, 175, 80, 0.1);
-      color: #388e3c;
-      padding: 2px 6px;
-      border-radius: 8px;
-      font-size: 0.7em;
-      font-weight: 500;
-    }
-
     .limit-indicator {
-      color: #f57c00;
+      display: flex;
+      align-items: center;
 
       mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .column-menu-btn {
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+
+      &:hover {
+        opacity: 1;
       }
     }
   }
 }
 
-// VERSION VERTICALE - Contenu en grille horizontale
 .column-content {
   flex: 1;
-  padding: 16px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  min-height: 150px;
-
-  // Disposition horizontale des cartes pour la version verticale
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+  padding: 8px 16px;
+  overflow-y: auto;
+  min-height: 200px;
 
   // Styles pour le drop zone
   &.cdk-drop-list-receiving {
@@ -254,7 +382,7 @@
     &::after {
       content: '';
       position: absolute;
-      inset: 16px;
+      inset: 0;
       border: 2px dashed #3f51b5;
       border-radius: 8px;
       pointer-events: none;
@@ -268,9 +396,9 @@
     }
   }
 
-  // Custom scrollbar pour le scroll horizontal
+  // Custom scrollbar
   &::-webkit-scrollbar {
-    height: 6px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-track {
@@ -296,8 +424,7 @@
   padding: 40px 20px;
   text-align: center;
   color: #999;
-  min-height: 150px;
-  width: 100%;
+  min-height: 200px;
 
   mat-icon {
     font-size: 48px;
@@ -311,14 +438,29 @@
     margin: 0 0 16px 0;
     font-size: 0.9em;
     font-style: italic;
+    line-height: 1.4;
   }
 
   .add-first-btn {
+    margin-bottom: 16px;
     border-color: var(--column-color, #ccc);
     color: var(--column-color, #666);
 
     &:hover {
       background: rgba(var(--column-color-rgb, 204, 204, 204), 0.1);
+    }
+  }
+
+  .automation-suggestion {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(63, 81, 181, 0.05);
+    border-radius: 8px;
+    border: 1px dashed #3f51b5;
+
+    button {
+      font-size: 0.85em;
+      color: #3f51b5;
     }
   }
 }
@@ -327,6 +469,26 @@
   padding: 12px 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   background: rgba(248, 249, 250, 0.8);
+
+  .column-footer-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.75em;
+    color: #666;
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
 
   .add-to-column-btn {
     width: 100%;
@@ -345,14 +507,18 @@
   }
 }
 
-// VERSION VERTICALE - Cartes ajustées pour la disposition horizontale
+// États des cartes de candidatures
 .drag-item {
-  flex-shrink: 0;
-  width: 300px; // Largeur fixe pour la disposition horizontale
-  margin-right: 8px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
 
-  &:last-child {
-    margin-right: 0;
+  &.overdue {
+    border-left: 3px solid #f44336;
+    transform: translateX(3px);
+  }
+
+  &.urgent {
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
   }
 
   &.cdk-drag-preview {
@@ -367,14 +533,12 @@
 
   &.cdk-drag-placeholder {
     opacity: 0;
-    width: 300px;
     height: 120px;
     background: rgba(63, 81, 181, 0.1);
     border: 2px dashed #3f51b5;
     border-radius: 8px;
-    margin-right: 8px;
+    margin-bottom: 8px;
     position: relative;
-    flex-shrink: 0;
 
     &::after {
       content: 'Déposer ici';
@@ -389,6 +553,7 @@
   }
 }
 
+// Messages de feedback améliorés
 .success-overlay {
   position: fixed;
   top: 80px;
@@ -400,6 +565,7 @@
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(76, 175, 80, 0.3);
   backdrop-filter: blur(10px);
+  max-width: 300px;
 
   .success-content {
     display: flex;
@@ -411,6 +577,43 @@
       font-size: 20px;
       width: 20px;
       height: 20px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// Indicateur d'automatisation
+.automation-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2000;
+
+  mat-card {
+    background: linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%);
+    color: white;
+    box-shadow: 0 8px 32px rgba(63, 81, 181, 0.3);
+
+    .automation-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+
+      mat-spinner {
+        ::ng-deep circle {
+          stroke: white;
+        }
+      }
+
+      span {
+        font-weight: 500;
+      }
+
+      button {
+        color: white;
+        border-color: white;
+      }
     }
   }
 }
@@ -428,6 +631,36 @@
   }
 }
 
+@keyframes pulse-warning {
+  0% {
+    background-color: #ff9800;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #ffb74d;
+    transform: scale(1.05);
+  }
+  100% {
+    background-color: #ff9800;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-error {
+  0% {
+    background-color: #f44336;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #e57373;
+    transform: scale(1.1);
+  }
+  100% {
+    background-color: #f44336;
+    transform: scale(1);
+  }
+}
+
 @keyframes pulse-border {
   0% {
     border-color: rgba(63, 81, 181, 0.3);
@@ -440,7 +673,7 @@
   }
 }
 
-// Responsive adaptations pour la version verticale
+// Responsive adaptations
 @media (max-width: 768px) {
   .kanban-container {
     padding: 12px;
@@ -451,18 +684,68 @@
     gap: 16px;
     padding: 16px;
 
+    .header-info {
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+
     .header-actions {
       width: 100%;
       justify-content: space-between;
 
+      .quick-filter {
+        min-width: 120px;
+        flex: 1;
+        margin-right: 8px;
+      }
+
       button {
         flex: 1;
         max-width: none;
+        margin: 0 2px;
+
+        span {
+          display: none; // Cacher le texte, garder seulement les icônes
+        }
+      }
+    }
+  }
+
+  .performance-indicator {
+    padding: 12px;
+
+    .performance-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .performance-details {
+      flex-direction: column;
+      gap: 4px;
+    }
+  }
+
+  .kanban-alerts {
+    .alert-card {
+      .alert-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        .alert-text {
+          text-align: center;
+        }
       }
     }
   }
 
   .kanban-column {
+    min-width: 280px;
+    width: 280px;
+    max-height: 70vh;
+
     .column-header {
       padding: 16px;
 
@@ -477,33 +760,15 @@
           height: 20px;
         }
       }
+
+      .column-metrics {
+        flex-direction: column;
+        gap: 4px;
+      }
     }
 
     .column-content {
-      padding: 12px;
-    }
-  }
-
-  // Pour mobile, retour à une disposition verticale des cartes
-  .column-content {
-    flex-direction: column;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
-  .drag-item {
-    width: 100%;
-    margin-right: 0;
-    margin-bottom: 8px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    &.cdk-drag-placeholder {
-      width: 100%;
-      margin-right: 0;
-      margin-bottom: 8px;
+      padding: 8px 12px;
     }
   }
 
@@ -512,21 +777,22 @@
     right: 12px;
     left: 12px;
     text-align: center;
+    max-width: none;
+  }
+
+  .automation-indicator {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+
+    .automation-content {
+      justify-content: center;
+      text-align: center;
+    }
   }
 }
 
-// Amélioration pour les très grands écrans
-@media (min-width: 1920px) {
-  .kanban-column {
-    min-height: 250px;
-  }
-
-  .drag-item {
-    width: 350px; // Cartes plus larges sur grands écrans
-  }
-}
-
-// Style pour le menu contextuel des actions
+// Style pour les menus contextuels
 .mat-mdc-menu-panel {
   .mat-mdc-menu-item {
     .mat-icon {
@@ -539,4 +805,86 @@
 .mat-mdc-chip {
   --mdc-chip-label-text-font: inherit;
   --mdc-chip-label-text-size: 0.8rem;
+}
+
+// Styles pour les form fields dans les filtres
+.quick-filter {
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none; // Cacher les messages d'erreur dans les filtres
+  }
+
+  .mat-mdc-form-field-infix {
+    padding: 8px 0;
+  }
+}
+
+// États spéciaux pour les colonnes
+.kanban-column {
+  // Animation d'entrée retardée pour chaque colonne
+  &:nth-child(1) { animation-delay: 0ms; }
+  &:nth-child(2) { animation-delay: 100ms; }
+  &:nth-child(3) { animation-delay: 200ms; }
+  &:nth-child(4) { animation-delay: 300ms; }
+  &:nth-child(5) { animation-delay: 400ms; }
+}
+
+// Amélioration pour les très grands écrans
+@media (min-width: 1920px) {
+  .kanban-board {
+    gap: 24px;
+  }
+
+  .kanban-column {
+    min-width: 350px;
+    width: 350px;
+    max-height: 85vh;
+  }
+}
+
+// Styles d'accessibilité
+@media (prefers-reduced-motion: reduce) {
+  .kanban-column,
+  .drag-item,
+  .success-overlay,
+  .automation-indicator {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+// Focus et états de navigation clavier
+.kanban-column:focus-within {
+  outline: 2px solid #3f51b5;
+  outline-offset: 2px;
+}
+
+.drag-item:focus-within {
+  outline: 2px solid #3f51b5;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+// Amélioration du contraste pour l'accessibilité
+@media (prefers-contrast: high) {
+  .kanban-column {
+    border: 2px solid #333;
+
+    &.limit-warning {
+      border-color: #ff6f00;
+    }
+
+    &.limit-exceeded {
+      border-color: #d32f2f;
+    }
+  }
+
+  .column-count {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+  }
+
+  .empty-column {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
 }
