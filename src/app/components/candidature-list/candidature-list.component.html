@@ -45,15 +45,45 @@
       <button mat-raised-button color="primary" (click)="ouvrirDialogAjout()">
         <mat-icon>add_circle_outline</mat-icon> Nouvelle candidature
       </button>
-      <button mat-raised-button color="accent" (click)="exporterEnCSV()" [disabled]="dataSource.data.length === 0">
-        <mat-icon>download</mat-icon> Exporter en CSV
+
+      <!-- Menu déroulant pour les actions d'export -->
+      <button mat-raised-button [matMenuTriggerFor]="exportMenu" color="accent" [disabled]="dataSource.data.length === 0">
+        <mat-icon>download</mat-icon> Export
+        <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
       </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exporterEnCSV()">
+          <mat-icon>description</mat-icon>
+          <span>Export CSV simple</span>
+        </button>
+        <button mat-menu-item (click)="ouvrirDialogExportAvance()">
+          <mat-icon>file_download</mat-icon>
+          <span>Export avancé avec filtres</span>
+        </button>
+      </mat-menu>
+
+      <!-- Menu déroulant pour les actions de gestion -->
+      <button mat-raised-button [matMenuTriggerFor]="gestionMenu" [disabled]="dataSource.data.length === 0">
+        <mat-icon>settings</mat-icon> Gestion
+        <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #gestionMenu="matMenu">
+        <button mat-menu-item (click)="ouvrirDialogArchive()">
+          <mat-icon>archive</mat-icon>
+          <span>Archiver les candidatures</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="ouvrirDialogSuppressionLot()">
+          <mat-icon>delete_sweep</mat-icon>
+          <span>Suppression en lot</span>
+        </button>
+      </mat-menu>
+
       <button mat-raised-button (click)="basculerAffichageStats()">
         <mat-icon>{{ afficherStats() ? 'visibility_off' : 'insights' }}</mat-icon>
         {{ afficherStats() ? 'Masquer les statistiques' : 'Afficher les statistiques' }}
       </button>
     </section>
-  </header>
 
   <section class="section-statistiques" *ngIf="afficherStats() && statistiques">
     <mat-card>

@@ -351,3 +351,56 @@ mat-paginator {
   background-color: $couleur-succes !important;
   color: white !important;
 }
+
+// Styles pour les nouveaux menus déroulants
+.section-actions {
+  button[mat-raised-button] {
+    .dropdown-icon {
+      margin-left: 4px;
+      font-size: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    &[aria-expanded="true"] .dropdown-icon {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+// Styles pour les menus Material
+.mat-mdc-menu-panel {
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+
+    .mat-icon {
+      margin-right: 12px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    span {
+      flex: 1;
+    }
+  }
+}
+
+// Responsive pour les nouveaux boutons
+@media (max-width: 768px) {
+  .section-actions {
+    button[mat-raised-button] {
+      padding: 0 12px;
+      min-width: auto;
+
+      // Cacher le texte sur mobile, garder seulement les icônes
+      span:not(.dropdown-icon) {
+        display: none;
+      }
+
+      .mat-icon:not(.dropdown-icon) {
+        margin-right: 0;
+      }
+    }
+  }
+}

@@ -28,6 +28,7 @@ import { CandidatureService } from '../../services/candidature.service';
 import { CandidatureDialogComponent } from '../candidature-dialog/candidature-dialogue.component';
 import { DatePickerDialogComponent } from '../date-picker-dialog/date-picker-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { ArchiveDialogComponent } from '../archive-dialog/archive-dialog.component';
 
 interface TopStatItem {
   nom: string;
@@ -499,4 +500,244 @@ export class CandidatureListComponent implements OnInit, AfterViewInit, OnDestro
       panelClass: [panelClass, 'custom-snackbar']
     });
   }
+  // Dans votre composant parent
+openArchiveDialog() {
+  const dialogRef = this.dialog.open(ArchiveDialogComponent, {
+    width: '500px',
+    data: {
+      candidatures: this.candidatureService.getAllCandidatures(),
+      action: 'archive' // ou 'delete' ou 'export'
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result?.confirmed) {
+      // Traiter l'action selon result.action et result.filters
+      console.log('Action confirmée:', result);
+    }
+  });
+}
+
+ouvrirDialogArchive(): void {
+  const candidatures = this.candidatureService.getAllCandidatures();
+  const dialogData: ArchiveDialogData = {
+    candidatures: candidatures,
+    action: 'archive'
+  };
+
+  const dialogRef = this.dialog.open(ArchiveDialogComponent, {
+    width: '500px',
+    maxWidth: '95vw',
+    data: dialogData
+  });
+
+  dialogRef.afterClosed().subscribe((result: ArchiveDialogResult) => {
+    if (result?.confirmed) {
+      this.traiterActionArchive(result);
+    }
+  });
+}
+
+// NOUVELLE MÉTHODE : Ouvrir le dialog de suppression en lot
+ouvrirDialogSuppressionLot(): void {
+  const candidatures = this.candidatureService.getAllCandidatures();
+  const dialogData: ArchiveDialogData = {
+    candidatures: candidatures,
+    action: 'delete'
+  };
+
+  const dialogRef = this.dialog.open(ArchiveDialogComponent, {
+    width: '500px',
+    maxWidth: '95vw',
+    data: dialogData
+  });
+
+  dialogRef.afterClosed().subscribe((result: ArchiveDialogResult) => {
+    if (result?.confirmed) {
+      this.traiterActionArchive(result);
+    }
+  });
+}
+
+// NOUVELLE MÉTHODE : Ouvrir le dialog d'export avancé
+ouvrirDialogExportAvance(): void {
+  const candidatures = this.candidatureService.getAllCandidatures();
+  const dialogData: ArchiveDialogData = {
+    candidatures: candidatures,
+    action: 'export'
+  };
+
+  const dialogRef = this.dialog.open(ArchiveDialogComponent, {
+    width: '500px',
+    maxWidth: '95vw',
+    data: dialogData
+  });
+
+  dialogRef.afterClosed().subscribe((result: ArchiveDialogResult) => {
+    if (result?.confirmed) {
+      this.traiterActionArchive(result);
+    }
+  });
+}
+
+// NOUVELLE MÉTHODE : Traiter les actions du dialog d'archivage
+private traiterActionArchive(result: ArchiveDialogResult): void {
+  const candidatures = this.candidatureService.getAllCandidatures();
+  let candidaturesFiltrees = [...candidatures];
+
+  // Appliquer les filtres
+  if (result.filters.olderThanDays && result.filters.olderThanDays > 0) {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - result.filters.olderThanDays);
+
+    candidaturesFiltrees = candidaturesFiltrees.filter(c => {
+      const candidatureDate = this.parseDateFr(c.date);
+      return candidatureDate && candidatureDate < cutoffDate;
+    });
+  }
+
+  // Filtrer par statut
+  if (result.filters.status && result.filters.status.length > 0) {
+    candidaturesFiltrees = candidaturesFiltrees.filter(c =>
+      result.filters.status!.includes(c.reponse)
+    );
+  }
+
+  // Filtrer par type
+  if (result.filters.type && result.filters.type.length > 0) {
+    candidaturesFiltrees = candidaturesFiltrees.filter(c =>
+      result.filters.type!.includes(c.type)
+    );
+  }
+
+  // Exécuter l'action
+  switch (result.action) {
+    case 'archive':
+      this.archiverCandidatures(candidaturesFiltrees);
+      break;
+    case 'delete':
+      this.supprimerCandidaturesLot(candidaturesFiltrees);
+      break;
+    case 'export':
+      this.exporterCandidaturesFiltrees(candidaturesFiltrees, result.filters.includeComments || false);
+      break;
+  }
+}
+
+// NOUVELLE MÉTHODE : Archiver des candidatures
+private archiverCandidatures(candidatures: Candidature[]): void {
+  if (candidatures.length === 0) {
+    this.afficherMessage('Aucune candidature à archiver selon les critères.', 'warn-snackbar');
+    return;
+  }
+
+  const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    width: '400px',
+    data: {
+      title: 'Confirmer l\'archivage',
+      message: `Archiver ${candidatures.length} candidature(s) ? Elles seront marquées comme archivées mais pas supprimées.`,
+      confirmText: 'Archiver',
+      cancelText: 'Annuler',
+      color: 'primary'
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(confirmed => {
+    if (confirmed) {
+      // Pour l'instant, on simule l'archivage en ajoutant un commentaire
+      candidatures.forEach(candidature => {
+        const candidatureModifiee = {
+          ...candidature,
+          commentaires: `${candidature.commentaires || ''}\n[ARCHIVÉ le ${new Date().toLocaleDateString('fr-FR')}]`.trim()
+        };
+        this.candidatureService.updateCandidature(candidatureModifiee);
+      });
+
+      this.loadCandidatures();
+      this.afficherMessage(`${candidatures.length} candidature(s) archivée(s).`, 'success-snackbar');
+    }
+  });
+}
+
+// NOUVELLE MÉTHODE : Supprimer des candidatures en lot
+private supprimerCandidaturesLot(candidatures: Candidature[]): void {
+  if (candidatures.length === 0) {
+    this.afficherMessage('Aucune candidature à supprimer selon les critères.', 'warn-snackbar');
+    return;
+  }
+
+  const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    width: '400px',
+    data: {
+      title: 'Confirmer la suppression',
+      message: `Supprimer définitivement ${candidatures.length} candidature(s) ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      color: 'warn'
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(confirmed => {
+    if (confirmed) {
+      candidatures.forEach(candidature => {
+        this.candidatureService.deleteCandidature(candidature.id);
+      });
+
+      this.loadCandidatures();
+      this.afficherMessage(`${candidatures.length} candidature(s) supprimée(s).`, 'warn-snackbar');
+    }
+  });
+}
+
+// NOUVELLE MÉTHODE : Exporter des candidatures filtrées
+private exporterCandidaturesFiltrees(candidatures: Candidature[], includeComments: boolean): void {
+  if (candidatures.length === 0) {
+    this.afficherMessage('Aucune candidature à exporter selon les critères.', 'warn-snackbar');
+    return;
+  }
+
+  // Préparer les données pour l'export
+  const headers = ['ID', 'Date', 'Type', 'Priorité', 'Entreprise', 'Poste', 'Ville', 'Région', 'Contact', 'Réponse', 'Source', 'Date Rappel'];
+  if (includeComments) {
+    headers.push('Commentaires');
+  }
+
+  const csvData = candidatures.map(c => {
+    const row = [
+      c.id.toString(),
+      c.date,
+      c.type,
+      c.ranking.toString(),
+      `"${c.entreprise}"`,
+      `"${c.poste}"`,
+      `"${c.ville}"`,
+      `"${c.region || ''}"`,
+      `"${c.contact || ''}"`,
+      c.reponse,
+      c.source,
+      c.dateRappel || ''
+    ];
+
+    if (includeComments) {
+      row.push(`"${c.commentaires || ''}"`);
+    }
+
+    return row.join(',');
+  });
+
+  const csvContent = [headers.join(','), ...csvData].join('\n');
+
+  // Télécharger le fichier
+  const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `export_candidatures_filtre_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  this.afficherMessage(`${candidatures.length} candidature(s) exportée(s) en CSV.`, 'success-snackbar');
+}
 }
