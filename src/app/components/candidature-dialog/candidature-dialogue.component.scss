@@ -2,7 +2,13 @@
 
 // Padding pour le contenu du dialogue
 div[mat-dialog-content] {
-  padding: 10px 24px; // Ajoute de l'espace à gauche et à droite
+  max-height: 80vh;
+  height: auto;
+  overflow-y: auto;
+  padding-bottom: 24px;
+  padding-top: 24px;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .candidature-form {
@@ -15,6 +21,7 @@ div[mat-dialog-content] {
 // Champ qui prend toute la largeur (comme les commentaires)
 .full-width-field {
   grid-column: 1 / -1; // S'étend sur toutes les colonnes de la grille
+
 }
 
 // Style pour les champs désactivés (comme la date de rappel si non personnalisée)
@@ -40,4 +47,3 @@ div[mat-dialog-content] {
 // mat-dialog-actions {
 //   padding: 16px 24px !important;
 // }
-// Cependant, le padding par défaut de Material est généralement correct.

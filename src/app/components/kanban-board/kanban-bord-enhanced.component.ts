@@ -48,292 +48,8 @@ import { CandidatureDialogComponent } from '../candidature-dialog/candidature-di
     FormsModule,
     CandidatureCardComponent
   ],
-  template: `
-    <div class="kanban-container">
-      <!-- Header avec stats et actions -->
-      <div class="kanban-header">
-        <div class="header-info">
-          <h1>
-            <mat-icon>view_kanban</mat-icon>
-            Pipeline des Candidatures
-          </h1>
-          <div class="stats-chips">
-            <mat-chip-set>
-              <mat-chip class="total-chip">
-                <mat-icon>work_outline</mat-icon>
-                {{ stats().totalCandidatures }} candidatures
-              </mat-chip>
-              <mat-chip class="progress-chip" *ngIf="stats().progressToday > 0">
-                <mat-icon>trending_up</mat-icon>
-                +{{ stats().progressToday }} aujourd'hui
-              </mat-chip>
-              <mat-chip class="urgent-chip" *ngIf="urgentCandidatures().length > 0">
-                <mat-icon>priority_high</mat-icon>
-                {{ urgentCandidatures().length }} urgent{{ urgentCandidatures().length > 1 ? 's' : '' }}
-              </mat-chip>
-            </mat-chip-set>
-          </div>
-        </div>
-
-        <div class="header-actions">
-          <!-- Filtres rapides -->
-          <mat-form-field appearance="outline" class="quick-filter">
-            <mat-label>Filtre rapide</mat-label>
-            <mat-select [(value)]="quickFilter" (selectionChange)="applyQuickFilter()">
-              <mat-option value="">Tout voir</mat-option>
-              <mat-option value="urgent">Urgent uniquement</mat-option>
-              <mat-option value="high-priority">Haute priorité</mat-option>
-              <mat-option value="overdue">En retard</mat-option>
-              <mat-option value="recent">Récent (7j)</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <button mat-raised-button color="primary" (click)="addNewCandidature()">
-            <mat-icon>add</mat-icon>
-            Nouvelle candidature
-          </button>
-
-          <button mat-stroked-button (click)="toggleView()">
-            <mat-icon>view_list</mat-icon>
-            Vue liste
-          </button>
-
-          <button mat-icon-button [matMenuTriggerFor]="moreActionsMenu" matTooltip="Plus d'actions">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #moreActionsMenu="matMenu">
-            <button mat-menu-item (click)="exportData()">
-              <mat-icon>download</mat-icon>
-              <span>Exporter CSV</span>
-            </button>
-            <button mat-menu-item (click)="refreshData()">
-              <mat-icon>refresh</mat-icon>
-              <span>Actualiser</span>
-            </button>
-            <button mat-menu-item (click)="showStats()">
-              <mat-icon>analytics</mat-icon>
-              <span>Statistiques</span>
-            </button>
-            <mat-divider></mat-divider>
-            <button mat-menu-item (click)="runAutomation()">
-              <mat-icon>auto_fix_high</mat-icon>
-              <span>Automatisation</span>
-            </button>
-            <button mat-menu-item (click)="cleanupOldData()">
-              <mat-icon>cleaning_services</mat-icon>
-              <span>Nettoyer anciennes données</span>
-            </button>
-          </mat-menu>
-        </div>
-      </div>
-
-      <!-- Indicateur de performance amélioré -->
-      <div class="performance-indicator" *ngIf="conversionRate() > 0">
-        <div class="performance-header">
-          <span class="performance-label">Performance globale</span>
-          <span class="performance-value">{{ conversionRate() }}% de succès</span>
-        </div>
-        <mat-progress-bar mode="determinate" [value]="conversionRate()" [color]="getPerformanceColor()"></mat-progress-bar>
-        <div class="performance-details">
-          <span>{{ stats().accepte }} accepté{{ stats().accepte > 1 ? 's' : '' }} sur {{ stats().total }}</span>
-          <span>Temps moyen: {{ averageTimeInPipeline() }}j</span>
-        </div>
-      </div>
-
-      <!-- Alertes et notifications -->
-      <div class="kanban-alerts" *ngIf="hasActiveAlerts()">
-        <mat-card class="alert-card">
-          <div class="alert-content">
-            <mat-icon class="alert-icon">notification_important</mat-icon>
-            <div class="alert-text">
-              <strong>{{ getAlertCount() }} action{{ getAlertCount() > 1 ? 's' : '' }} requise{{ getAlertCount() > 1 ? 's' : '' }}</strong>
-              <p>{{ getAlertMessage() }}</p>
-            </div>
-            <button mat-button color="primary" (click)="handleAlerts()">Traiter</button>
-          </div>
-        </mat-card>
-      </div>
-
-      <!-- Colonnes Kanban -->
-      <div class="kanban-board"
-           cdkDropListGroup
-           [@slideIn]="columns().length"
-           [class.loading]="isLoading()">
-
-        <div *ngFor="let column of filteredColumns(); trackBy: trackByColumn"
-             class="kanban-column"
-             [style.--column-color]="column.color"
-             [class.limit-warning]="isNearLimit(column)"
-             [class.limit-exceeded]="isLimitExceeded(column)">
-
-          <!-- En-tête de colonne amélioré -->
-          <div class="column-header">
-            <div class="column-info">
-              <div class="column-title-section">
-                <mat-icon [style.color]="column.color">{{ column.icon }}</mat-icon>
-                <h3>{{ column.title }}</h3>
-                <span class="column-count"
-                      [class.warning]="isNearLimit(column)"
-                      [class.error]="isLimitExceeded(column)">
-                  {{ column.candidatures.length }}
-                  <span *ngIf="column.maxItems">/{{ column.maxItems }}</span>
-                </span>
-              </div>
-              <p class="column-description">{{ column.description }}</p>
-
-              <!-- Métriques de colonne -->
-              <div class="column-metrics" *ngIf="getColumnMetrics(column.id) as metrics">
-                <div class="metric-item" *ngIf="metrics.avgDays > 0">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ metrics.avgDays }}j moy.</span>
-                </div>
-                <div class="metric-item" *ngIf="metrics.conversionRate > 0">
-                  <mat-icon>trending_up</mat-icon>
-                  <span>{{ metrics.conversionRate }}% conv.</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Indicateurs de colonne -->
-            <div class="column-indicators">
-              <div class="limit-indicator"
-                   *ngIf="isNearLimit(column)"
-                   [matTooltip]="getLimitTooltip(column)">
-                <mat-icon [color]="isLimitExceeded(column) ? 'warn' : 'accent'">
-                  {{ isLimitExceeded(column) ? 'error' : 'warning' }}
-                </mat-icon>
-              </div>
-              <button mat-icon-button
-                      class="column-menu-btn"
-                      [matMenuTriggerFor]="columnMenu"
-                      matTooltip="Actions de colonne">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-              <mat-menu #columnMenu="matMenu">
-                <button mat-menu-item (click)="addCandidatureToColumn(column.id)">
-                  <mat-icon>add</mat-icon>
-                  <span>Ajouter ici</span>
-                </button>
-                <button mat-menu-item (click)="sortColumn(column.id, 'priority')">
-                  <mat-icon>sort</mat-icon>
-                  <span>Trier par priorité</span>
-                </button>
-                <button mat-menu-item (click)="sortColumn(column.id, 'date')">
-                  <mat-icon>event</mat-icon>
-                  <span>Trier par date</span>
-                </button>
-                <mat-divider></mat-divider>
-                <button mat-menu-item (click)="bulkActionColumn(column.id, 'set-reminder')">
-                  <mat-icon>alarm_add</mat-icon>
-                  <span>Rappel pour toutes</span>
-                </button>
-                <button mat-menu-item (click)="bulkActionColumn(column.id, 'mark-priority')">
-                  <mat-icon>priority_high</mat-icon>
-                  <span>Marquer prioritaires</span>
-                </button>
-              </mat-menu>
-            </div>
-          </div>
-
-          <!-- Zone de drop avec feedback amélioré -->
-          <div class="column-content"
-               cdkDropList
-               [cdkDropListData]="column.candidatures"
-               [id]="column.id"
-               (cdkDropListDropped)="drop($event)"
-               [cdkDropListEnterPredicate]="canDrop">
-
-            <!-- Message si vide avec suggestions -->
-            <div *ngIf="column.candidatures.length === 0" class="empty-column">
-              <mat-icon [style.color]="column.color">{{ column.icon }}</mat-icon>
-              <p>{{ getEmptyColumnMessage(column.id) }}</p>
-              <button mat-stroked-button
-                      *ngIf="canAddToColumn(column.id)"
-                      (click)="addCandidatureToColumn(column.id)"
-                      class="add-first-btn"
-                      [style.border-color]="column.color"
-                      [style.color]="column.color">
-                <mat-icon>add</mat-icon>
-                {{ getAddButtonText(column.id) }}
-              </button>
-
-              <!-- Suggestions d'automation -->
-              <div class="automation-suggestion" *ngIf="getAutomationSuggestion(column.id) as suggestion">
-                <button mat-button (click)="applyAutomationSuggestion(suggestion)">
-                  <mat-icon>auto_fix_high</mat-icon>
-                  {{ suggestion.text }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Cartes des candidatures -->
-            <div *ngFor="let candidature of column.candidatures; trackBy: trackByCandidature"
-                 cdkDrag
-                 [cdkDragData]="candidature"
-                 class="drag-item"
-                 [class.overdue]="isOverdue(candidature)"
-                 [class.urgent]="isUrgent(candidature)"
-                 (cdkDragStarted)="onDragStart(candidature)"
-                 (cdkDragEnded)="onDragEnd()">
-
-              <app-candidature-card
-                [candidature]="candidature"
-                [quickActions]="getContextualQuickActions(candidature, column.id)"
-                [isDragging]="draggingCandidature() === candidature"
-                (edit)="editCandidature($event)"
-                (viewDetails)="viewCandidatureDetails($event)"
-                (quickAction)="executeQuickAction($event)">
-              </app-candidature-card>
-            </div>
-          </div>
-
-          <!-- Footer avec actions rapides et stats -->
-          <div class="column-footer">
-            <div class="column-footer-stats" *ngIf="column.candidatures.length > 0">
-              <span class="stat-item">
-                <mat-icon>schedule</mat-icon>
-                {{ getOldestInColumn(column.id) }}j max
-              </span>
-              <span class="stat-item" *ngIf="getUrgentInColumn(column.id) > 0">
-                <mat-icon>priority_high</mat-icon>
-                {{ getUrgentInColumn(column.id) }} urgent{{ getUrgentInColumn(column.id) > 1 ? 's' : '' }}
-              </span>
-            </div>
-
-            <button mat-button
-                    *ngIf="canAddToColumn(column.id)"
-                    (click)="addCandidatureToColumn(column.id)"
-                    class="add-to-column-btn">
-              <mat-icon>add</mat-icon>
-              Ajouter ici
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Messages de feedback améliorés -->
-      <div *ngIf="successMessage()"
-           class="success-overlay"
-           [@fadeInOut]>
-        <div class="success-content">
-          <mat-icon>{{ getSuccessIcon() }}</mat-icon>
-          <span>{{ successMessage() }}</span>
-        </div>
-      </div>
-
-      <!-- Indicateur d'automatisation active -->
-      <div *ngIf="automationRunning()" class="automation-indicator">
-        <mat-card>
-          <div class="automation-content">
-            <mat-spinner diameter="20"></mat-spinner>
-            <span>Automatisation en cours...</span>
-            <button mat-button (click)="cancelAutomation()">Annuler</button>
-          </div>
-        </mat-card>
-      </div>
-    </div>
-  `,
-  styleUrls: ['./kanban-board.component.scss'],
+  templateUrl: './kanban-bord-enhanced.component.html',
+  styleUrls: ['./kanban-bord-enhanced.component.scss'],
   animations: [
     trigger('slideIn', [
       transition(':enter', [
@@ -356,6 +72,8 @@ import { CandidatureDialogComponent } from '../candidature-dialog/candidature-di
     ])
   ]
 })
+
+
 export class KanbanBoardComponent implements OnInit, OnDestroy {
   columns = signal<KanbanColumn[]>([]);
   filteredColumns = signal<KanbanColumn[]>([]);
@@ -369,7 +87,6 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
   conversionRate = computed(() => this.calculateConversionRate());
   urgentCandidatures = computed(() => this.getUrgentCandidatures());
 
-  // Quick Actions contextuelles améliorées
   quickActions: QuickAction[] = [
     {
       id: 'priority-high',
@@ -463,8 +180,6 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
     this.columns.set(newColumns);
     this.applyQuickFilter();
   }
-
-  // === NOUVELLES FONCTIONNALITÉS AUTOMATISATION ===
 
   private startAutomationTimer(): void {
     // Exécuter l'automatisation toutes les 5 minutes
@@ -640,15 +355,29 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
 
   private calculateStats(): KanbanStats {
     const allCandidatures = this.candidatureService.getAllCandidatures();
+    const serviceStats = this.candidatureService.kanbanStats(); // Access the signal's value
     const today = new Date().toDateString();
 
     return {
+      // Properties from KanbanBoardComponent's own calculations
       totalCandidatures: allCandidatures.length,
       conversionRates: this.calculateColumnConversions(),
       averageTimePerStage: this.calculateAverageTimePerStage(),
       progressToday: allCandidatures.filter(c =>
         new Date(c.date.split('/').reverse().join('-')).toDateString() === today
-      ).length
+      ).length,
+
+      // Properties from CandidatureService.kanbanStats()
+      total: serviceStats.total,
+      brouillon: serviceStats.brouillon,
+      envoyee: serviceStats.envoyee,
+      enAttente: serviceStats.enAttente,
+      enDiscussion: serviceStats.enDiscussion,
+      finalise: serviceStats.finalise,
+      accepte: serviceStats.accepte,
+      refus: serviceStats.refus,
+      urgent: serviceStats.urgent,
+      rappelsAujourdhui: serviceStats.rappelsAujourdhui
     };
   }
 
@@ -679,7 +408,7 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
   }
 
   private calculateAverageTimePerStage(): { [key: string]: number } {
-    // Calcul simplifié - dans une vraie app, on trackrait les mouvements
+    // Calcul simplifié - dans une vraie app, on tracktrait les mouvements
     return {
       'brouillon': 2,
       'envoyee': 7,
@@ -768,6 +497,7 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
         return baseActions.filter(a => ['schedule-interview', 'reminder-week', 'add-note'].includes(a.id));
       case 'en-discussion':
         return baseActions.filter(a => ['schedule-interview', 'add-note'].includes(a.id));
+
       default:
         return baseActions;
     }
@@ -892,15 +622,15 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
 
   // === MÉTHODES UTILITAIRES ===
 
-  private getUrgentCandidatures(): Candidature[] {
+  public getUrgentCandidatures(): Candidature[] {
     return this.candidatureService.getAllCandidatures().filter(c => this.isUrgent(c));
   }
 
-  private isUrgent(candidature: Candidature): boolean {
+  public isUrgent(candidature: Candidature): boolean {
     return candidature.ranking === 1 || this.isOverdue(candidature);
   }
 
-  private isOverdue(candidature: Candidature): boolean {
+  public isOverdue(candidature: Candidature): boolean {
     if (!candidature.dateRappel) return false;
     const reminderDate = this.parseDateFr(candidature.dateRappel);
     if (!reminderDate) return false;
@@ -1084,17 +814,13 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
 
   private triggerCelebration(candidature: Candidature): void {
     this.showSuccessMessage(`🎉 Félicitations ! Candidature acceptée chez ${candidature.entreprise} !`);
-    // Ici, on pourrait ajouter des confettis ou d'autres effets visuels
     console.log('🎉 CELEBRATION! Candidature acceptée!', candidature);
   }
-
-  // === MÉTHODES EXISTANTES CONSERVÉES ===
 
   private updateCandidatureStatus(candidature: Candidature, columnId: string): void {
     const newStatuses = COLUMN_TO_STATUS_MAP[columnId];
     if (newStatuses && newStatuses.length > 0) {
       if (columnId === 'finalise' && (candidature.reponse === 'Refus' || candidature.reponse === 'Accepté')) {
-        // Garder le statut actuel
       } else {
         candidature.reponse = newStatuses[0] as any;
       }

@@ -70,7 +70,7 @@
 
 // Nouveau: Menu sous candidatures
 .candidatures-submenu {
-  min-width: 200px !important;
+  min-width: 200px;
 
   .mat-mdc-menu-item {
     display: flex;
@@ -114,8 +114,8 @@
 }
 
 .notifications-panel {
-  max-width: 360px !important;
-  min-width: 320px !important;
+  max-width: 480px ;
+  min-width: 440px ;
 }
 
 .notifications-header {
@@ -132,18 +132,22 @@
     font-size: 0.8em;
     line-height: 28px;
     min-width: auto;
-    padding: 0 8px;
+    padding: 0 10px;
+    margin-bottom: auto;
+    margin-top: auto;
   }
 }
 
 .notifications-list-container {
-  max-height: 400px;
+  max-height: 460px;
   overflow-y: auto;
 }
 
 .notification-item {
   cursor: pointer;
   border-left: 4px solid transparent;
+  padding: 8px 16px;
+  margin: 4px 0;
 
   &.unread {
     border-left-color: var(--mdc-theme-primary, #3f51b5);
@@ -228,9 +232,10 @@
 
 // Nouveau: User name display
 .user-name-display {
-  font-size: 0.9em;
-  margin-left: 4px;
-  font-weight: 500;
+  // font-size: 0.9em;
+  // font-weight: 500;
+  display: none;
+
 }
 
 // Animation pour le badge "NEW"

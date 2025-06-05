@@ -11,11 +11,23 @@ export interface KanbanColumn {
   description?: string;
 }
 
+// Interface corrigée pour correspondre aux données utilisées
 export interface KanbanStats {
   totalCandidatures: number;
+  total: number; // Ajouté pour correspondre à l'utilisation dans le template
   conversionRates: { [key: string]: number };
   averageTimePerStage: { [key: string]: number };
   progressToday: number;
+  // Ajout des propriétés manquantes utilisées dans le template
+  brouillon: number;
+  envoyee: number;
+  enAttente: number;
+  enDiscussion: number;
+  finalise: number;
+  accepte: number; // Propriété manquante qui cause l'erreur
+  refus: number;
+  urgent: number;
+  rappelsAujourdhui: number;
 }
 
 export interface QuickAction {
